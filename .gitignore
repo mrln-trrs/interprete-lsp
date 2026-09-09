@@ -1,0 +1,20 @@
+# Entorno virtual
+venv_lsp/
+env/
+__pycache__/
+*.pyc
+
+# Datos y secuencias pesadas
+data/raw_videos/
+data/keypoints/**/*.npy
+data/keypoints/
+
+# Modelos binarios grandes (usar Google Drive o Releases para compartirlos)
+models/trained/*.h5
+models/trained/*.keras
+
+# Archivos del sistema e IDEs
+.vscode/
+.idea/
+.DS_Store
+*.log
