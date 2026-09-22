@@ -12,9 +12,23 @@ data/keypoints/
 # Modelos binarios grandes (usar Google Drive o Releases para compartirlos)
 models/trained/*.h5
 models/trained/*.keras
+models/trained/*.tflite
+models/trained/label_encoder.json
 
 # Archivos del sistema e IDEs
 .vscode/
 .idea/
 .DS_Store
 *.log
+
+# ── Secretos y configuración local ───────────────────────────────────────────
+# NUNCA subir archivos con tokens, contraseñas o claves de API
+.env
+.env.local
+.env.*.local
+secrets.py
+secrets.json
+
+# ngrok (el token se guarda en AppData, no en el repo)
+ngrok.yml
+ngrok.yaml
