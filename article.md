@@ -1,282 +1,287 @@
-# Interprete de Lengua de Senas Peruana con IA: Diseno, Arquitectura y Proceso de Desarrollo
+# Interprete de Lengua de Senas Peruana con IA
 
-**Autor y Arquitectura de Software:** Marlon Omar Torres Espinoza  
-**Repositorio del proyecto:** [https://github.com/mrln-trrs/interprete-lsp](https://github.com/mrln-trrs/interprete-lsp)  
-**Marco del proyecto:** Iniciativa de codigo abierto gestada en la Universidad Privada San Juan Bautista (Escuela de Ingenieria de Sistemas, curso de Inteligencia Artificial, docente Mg. Luis Timir Ponce de Leon Arrivasplata), con el apoyo colaborativo en documentacion, alineacion tematica y recopilacion de ideas por parte de Smith Litano Loayza, Tracy Sandoval Evangelista y Piero Rojas Huaman.
-
----
-
-## Area 1: Resumen y Contexto Rapido
-
-### De que trata este proyecto?
-
-Este proyecto consiste en el diseno y desarrollo de un interprete de Lengua de Senas Peruana (LSP) en tiempo real basado en Inteligencia Artificial y vision por computadora. A diferencia de las soluciones tradicionales que requieren guantes con sensores electronicos, camaras de profundidad costosas o programas pesados instalados localmente, esta propuesta esta concebida para funcionar con hardware accesible: una camara web convencional o incluso la camara de un telefono celular.
-
-El sistema procesa el video continuo de las manos, extrae la cinematica articular mediante MediaPipe Hands (126 puntos tridimensionales por fotograma), analiza la secuencia temporal con redes neuronales recurrentes (LSTM/GRU), valida la certeza mediante reglas logicas en Prolog y finalmente traduce la expresion a una oracion coherente en espanol mediante procesamiento de lenguaje natural, emitiendola en texto, voz sintetizada y senalizacion con microcontroladores Arduino.
-
-### El problema de fondo y el proposito altruista
-
-En el Peru, las personas con discapacidad auditiva enfrentan a diario una gran brecha de comunicacion: la inmensa mayoria de la poblacion oyente desconoce por completo la Lengua de Senas Peruana. Una tarea cotidiana, como solicitar atencion medica, realizar un tramite administrativo o asistir a una clase, requiere casi siempre el acompanamiento de un interprete humano, cuya disponibilidad es limitada.
-
-La meta principal de este desarrollo es eminentemente altruista y social: construir una maqueta tecnologica funcional, modular y de codigo abierto que demuestre que es posible derribar estas barreras sin crear una dependencia de equipos privativos caros. Al publicar todo el flujo de desarrollo, la arquitectura y el codigo fuente, se busca que la solucion sirva como punto de partida practico y reproducible para la comunidad de desarrolladores e investigadores interesados en tecnologia de asistencia.
+> **Stack:** Python 3.11 · MediaPipe · TensorFlow / Keras · Flask · Prolog · Arduino  
+> **Estado:** Prototipo funcional (percepcion, pruebas unitarias y maqueta web remota completadas)  
+> **Tipo:** Computer Vision · Deep Learning · NLP · Software Architecture  
+>
+> Desarrolle un sistema de interpretacion en tiempo real para la Lengua de Senas Peruana (LSP) capaz de operar sobre hardware convencional sin requerir sensores fisicos ni guantes especiales. El sistema extrae 126 coordenadas articulares tridimensionales mediante MediaPipe Hands, procesa la dinamica temporal a traves de una red recurrente (LSTM/GRU), filtra la estabilidad con reglas logicas en Prolog y traduce las secuencias a oraciones coherentes en espanol. Actualmente el proyecto cuenta con el pipeline de vision validado bajo pruebas unitarias automatizadas y una maqueta web funcional que permite a cualquier usuario transmitir video desde la camara de su propio celular hacia el servidor local via tunel seguro ngrok, manteniendo protegida la camara del anfitrion.
 
 ---
 
-## Area 2: Detalle del Proyecto, Estado y Elaboracion
+## 01 — Contexto
 
-### Como esta concebido el flujo de inferencia?
+En el Peru, las personas con discapacidad auditiva enfrentan a diario una brecha de comunicacion constante: la inmensa mayoria de la poblacion oyente no conoce la Lengua de Senas Peruana. Esto convierte gestiones cotidianas, como acudir a un centro de salud, realizar tramites bancarios o estudiar, en situaciones que dependen casi exclusivamente de la disponibilidad de un interprete humano colegiado.
 
-El sistema no intenta resolver todo el problema con un unico modelo monolítico de caja negra. En su lugar, utiliza una arquitectura por capas desacopladas, lo que permite mejorar, probar o sustituir cada etapa sin afectar al resto del pipeline.
+El proyecto nacio en las aulas de la Universidad Privada San Juan Bautista (VIII ciclo de Ingenieria de Sistemas, asignatura de Inteligencia Artificial guiada por el Mg. Luis Timir Ponce de Leon Arrivasplata), con apoyo colaborativo de Smith Litano, Tracy Sandoval y Piero Rojas en tareas de documentacion, alineacion academica e ideas iniciales. Mi meta al asumir la arquitectura y el desarrollo tecnico fue construir una maqueta funcional de codigo abierto orientada a un proposito estrictamente altruista: demostrar que es viable crear tecnologia asistiva accesible sin obligar al usuario a adquirir equipamiento privativo ni sensores de alto costo.
+
+### Objetivo
+
+Desarrollar un sistema capaz de capturar secuencias continuas de Lengua de Senas Peruana desde una camara comun, clasificar los gestos mediante tecnicas de aprendizaje profundo y reestructurar contextualmente los terminos en oraciones fluidas en espanol emitidas en texto, voz y senales fisicas.
+
+### Alcance
+
+- **Incluye:**
+  - Percepcion visual de ambas manos en tiempo real mediante puntos clave articulares.
+  - Normalizacion espacial invariante a la distancia y posicion frente a la lente.
+  - Clasificacion continua sobre un vocabulario inicial de 9 clases representativas (`REPOSO`, `HOLA`, `GRACIAS`, `POR_FAVOR`, `AYUDA`, `YO`, `QUERER`, `AGUA`, `BUENOS_DIAS`).
+  - Capa de supervision logica para filtrado de estabilidad y descarte de ruido.
+  - Maqueta de demostracion web para dispositivos moviles conectada a un servidor de inferencia.
+  - Integracion prevista hacia sintesis de voz local y microcontroladores Arduino.
+- **Queda fuera:**
+  - Reconocimiento de expresiones faciales o postura corporal completa (enfocado estrictamente en manos para optimizar recursos computacionales).
+  - Traduccion simultanea de corpus extensos o conversaciones abiertas de alta complejidad gramatical (fase de prototipo con lexico controlado).
+  - Procesamiento en el dispositivo movil del cliente (el cliente actua como sensor de captura; la computacion pesada ocurre en el servidor).
+
+---
+
+## 02 — Arquitectura
+
+### Sistema
+
+La arquitectura esta disenada como una canalizacion modular por capas desacopladas. En lugar de alimentar una red neuronal con imagenes crudas en un esquema monolítico, el sistema divide el problema en percepcion geometrica, analisis temporal, supervision formal y adaptacion linguistica.
 
 ```mermaid
 flowchart TD
-    subgraph Capa1["1. Captura y Percepcion"]
-        A["Flujo de Video (Camara Web o Celular 30 FPS)"] --> B["Detector MediaPipe Hands"]
-        B --> C["21 Landmarks 3D por mano (x, y, z)\nVector crudo de 126 valores por frame"]
+    subgraph Percepcion["1. Percepcion y Extraccion"]
+        A["Sensor Optico (Camara Web / Celular 30 FPS)"] --> B["MediaPipe Hands"]
+        B --> C["21 Landmarks 3D por mano (x, y, z) = 126 valores"]
     end
 
-    subgraph Capa2["2. Preprocesamiento Espaciotemporal"]
-        C --> D["Normalizacion de Coordenadas\nOrigen en la muneca y escala de la palma"]
-        D --> E["Buffer Deslizante\nVentana temporal de 30 frames continuos"]
+    subgraph Procesamiento["2. Preprocesamiento Espacial"]
+        C --> D["Normalizacion de coordenadas (Muneca como origen)"]
+        D --> E["Buffer deslizante temporal (Ventana de 30 frames)"]
     end
 
-    subgraph Capa3["3. Clasificacion Recurrente"]
-        E --> F["Red Neuronal LSTM / GRU\nClasificacion sobre 9 clases de glosas"]
-        F --> G["Prediccion con probabilidad Softmax"]
+    subgraph Clasificacion["3. Modelado Secuencial"]
+        E --> F["Red Neuronal Recurrente LSTM / GRU"]
+        F --> G["Probabilidad Softmax por clase"]
     end
 
-    subgraph Capa4["4. Supervision y Lenguaje"]
-        G --> H["Filtro Logico en Prolog\nConfianza >= 0.85 y estabilidad de 10 frames"]
-        H --> I["Buffer de Glosas Validadas\nEjemplo: YO + QUERER + AGUA"]
-        I --> J["Modulo de PLN\nAlineacion gramatical a oracion en espanol"]
+    subgraph Logica["4. Supervision y Contexto"]
+        G --> H["Capa Logica Prolog (Umbral >= 0.85, 10 frames de estabilidad)"]
+        H --> I["Buffer de Glosas Validadas"]
+        I --> J["Modulo PLN (Reordenamiento a oracion en espanol)"]
     end
 
-    subgraph Capa5["5. Salidas Multimodales"]
-        J --> K["Texto legible en pantalla"]
+    subgraph Salida["5. Despacho Multimodal"]
+        J --> K["Texto en pantalla"]
         J --> L["Sintesis de voz (pyttsx3)"]
-        J --> M["Controlador Serial Arduino (Pantalla LCD / LEDs)"]
+        J --> M["Controlador Serial Arduino (LCD / LEDs)"]
     end
 ```
 
-### El proceso paso a paso
+### Componentes
 
-1. **Percepcion de manos:** Cada fotograma entrante es analizado por MediaPipe Hands, estimando las coordenadas de 21 articulaciones por extremidad (dedos y muneca). Al trabajar con dos manos simultaneas, cada cuadro se sintetiza en un vector numerico continuo de 126 posiciones.
-2. **Normalizacion espacial:** Para que el algoritmo no dependa de cuan cerca o lejos se ubica la persona frente al lente, el vector se transforma: la muneca se define como coordenada `(0, 0, 0)` y todas las demas distancias se reescalan en funcion del tamano de la palma.
-3. **Modelado temporal:** La lengua de senas no se compone de fotografias estaticas, sino de movimientos dinamicos en el tiempo. Se apilan 30 fotogramas consecutivos (aproximadamente un segundo de expresion) formando una matriz `(30, 126)` que entra a una red LSTM/GRU encargada de inferir que glosa se ejecuto.
-4. **Control de falsos positivos:** Las redes neuronales pueden parpadear entre clases ante ruidos visuales. La capa logica en Prolog supervisa que la prediccion mantenga al menos un 85% de confianza durante 10 cuadros consecutivos antes de dar por buena una seña.
-5. **Generacion de lenguaje natural:** La estructura de la LSP difiere del espanol (por ejemplo, el orden de sujeto, verbo y objeto suele variar). El modulo de PLN recibe las glosas confirmadas y construye oraciones gramaticalmente naturales, derivandolas a la sintesis de voz con `pyttsx3` y a una pantalla LCD externa con Arduino.
+- **Modulo de Percepcion (`src/vision/detector.py`):** Encapsula el detector MediaPipe Hands para localizar manos en el cuadro de video y obtener las coordenadas relativas de 21 articulaciones por extremidad.
+- **Modulo de Normalizacion (`src/vision/normalizer.py`):** Transforma la geometria cruda en coordenadas invariantes a escala y traslacion espacial.
+- **Buffer Temporal:** Memoria de tipo cola circular que acumula las ultimas 30 muestras temporales, equivalentes a aproximadamente un segundo de movimiento continuo.
+- **Clasificador Recurrente (`src/training/model_builder.py`):** Red profunda con capas LSTM/GRU que aprende patrones de trayectoria y transicion entre articulaciones.
+- **Supervisión Logica en Prolog:** Modulo basado en conocimiento que aplica reglas deterministas sobre la confianza y duracion del gesto, impidiendo que parpadeos visuales activen predicciones espurias.
+- **Traductor Contextual (`src/nlp/translator.py`):** Componente de procesamiento de lenguaje natural encargado de mapear la cadena de glosas hacia la sintaxis del espanol hablado.
+- **Servidor Web de Demostracion (`web_server.py`):** Aplicacion Flask que procesa fotogramas enviados por clientes remotos mediante endpoints REST.
+- **Controlador Fisico (`src/hardware/serial_controller.py` y `arduino/`):** Canal de comunicacion serial PySerial para actualizar una pantalla LCD y diodos LED indicadores.
 
-### El hito actual: Despliegue de la Maqueta Web
+### Flujo
 
-Para validar la deteccion en vivo sin obligar a los evaluadores o interesados a clonar el repositorio, instalar Python o configurar entornos virtuales, se implemento una maqueta de demostracion web remota.
+El recorrido de la informacion opera de la siguiente manera:
 
-#### El diseno de privacidad
-
-Un principio estricto del diseno fue proteger la privacidad del servidor:
-- La camara de la laptop que procesa el modelo **nunca se activa, no se usa y no se comparte**.
-- El usuario remoto que abre el enlace en su telefono celular o computadora es quien proporciona el video a traves de su propia camara web, utilizando la API estandar `navigator.mediaDevices.getUserMedia`.
-- La laptop anfitriona opera exclusivamente como nodo de computo matematico y de vision por computadora.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Usuario as Celular del Usuario
-    participant Tunel as Tunel HTTPS ngrok
-    participant Servidor as Servidor Flask (web_server.py)
-    participant Motor as MediaPipe Hands
-
-    Usuario->>Usuario: Abre URL HTTPS y autoriza su propia camara
-    loop Bucle de streaming (~12 FPS)
-        Usuario->>Usuario: Dibuja frame en canvas local (640x480)
-        Usuario->>Tunel: POST /process_frame (JPEG base64 al 65%)
-        Tunel->>Servidor: Reenvio seguro a localhost:5000
-        Servidor->>Motor: Extraccion de landmarks y handedness
-        Motor-->>Servidor: 21 puntos clave por mano detectada
-        Servidor->>Servidor: Dibuja esqueleto y genera vector 126D
-        Servidor-->>Tunel: Respuesta JSON (frame anotado, stats, vector)
-        Tunel-->>Usuario: Retorno de datos
-        Usuario->>Usuario: Actualiza HUD (FPS, latencia RTT y barras de keypoints)
-    end
-```
-
-#### Rendimiento medido en pruebas reales
-
-- **Frecuencia efectiva:** Entre 11 y 13 FPS estables sobre conexiones inalambricas convencionales.
-- **Latencia de ida y vuelta (RTT):** Entre 85 y 115 milisegundos (conexion cliente -> ngrok -> Flask -> MediaPipe -> cliente).
-- **Carga de red:** Fotogramas JPEG comprimidos con pesos de 32 a 42 KB, livianos para planes moviles.
-- **Consumo computacional:** Entre 18% y 24% de procesador (CPU estandar), demostrando que no se requiere una tarjeta grafica de gama alta para ejecutar la percepcion articular.
-
-### Buenas practicas de ingenieria y estructura del repositorio
-
-El proyecto esta organizado bajo estrictos criterios de modularidad, trazabilidad y pruebas automatizadas:
-
-```
-interprete-lsp/
-|-- web_server.py               Servidor Flask de la demo web remota
-|-- README.md                   Documentacion de instalacion y puesta en marcha
-|-- KANBAN.md                   Tablero de tareas del equipo
-|-- CONTRIBUTING.md             Flujo de ramas Git y convenciones
-|-- article.md                  Articulo divulgativo y tecnico para blog
-|-- requirements.txt            Dependencias congeladas (Python 3.11)
-|
-|-- config/
-|   +-- actions.py              Vocabulario de 9 clases LSP (REPOSO, HOLA, etc.)
-|
-|-- src/
-|   |-- main.py                 Ejecutable de escritorio para pruebas locales
-|   |-- vision/                 Extraccion de landmarks y normalizacion 126D
-|   |-- data_collection/        Scripts para la captura sistematica de muestras
-|   |-- training/               Construccion y entrenamiento de red LSTM
-|   |-- nlp/                    Modulo de traduccion de glosas a espanol
-|   +-- hardware/               Controlador serial de comunicacion con Arduino
-|
-|-- arduino/
-|   +-- lsp_display_controller/ Firmware .ino para senalizacion externa
-|
-+-- tests/
-    +-- test_vision.py          Suite automatizada de pruebas unitarias
-```
-
-#### Pruebas unitarias automatizadas
-
-En `tests/test_vision.py` se validan los invariantes numericos del sistema:
-- `test_detector_initialization`: Inicializacion correcta del motor MediaPipe.
-- `test_normalization_dummy_hand`: Comprobacion de invariancia de escala y centrado en la muneca.
-- `test_normalization_zeros`: Asegura que ante ausencia de manos el vector contenga ceros exactos.
-- `test_process_blank_frame`: Comportamiento resiliente ante imagenes monocromaticas o sin contenido.
-
-Las pruebas se ejecutan en 0.17 segundos de forma continua, asegurando que ningun cambio corrompa el pipeline matematico.
-
-### Estado de avance del proyecto
-
-| Modulo o Componente | Estado Actual | Observacion tecnica |
-|---|---|---|
-| Entorno y dependencias | Completado | Python 3.11, TensorFlow 2.16, MediaPipe 0.10.14 |
-| Percepcion visual de manos | Completado | Extraccion y normalizacion de 126 valores validada |
-| Suite de pruebas unitarias | Completado | Pruebas de vision ejecutandose con 100% de exito |
-| Maqueta web interactiva | Completado | Despliegue con ngrok HTTPS y procesamiento remoto |
-| Recoleccion de dataset | En desarrollo | Script para registrar 30 a 50 secuencias por seña |
-| Modelo neuronal LSTM/GRU | Planificado | Arquitectura definida; a la espera del dataset consolidado |
-| Logica simbolica en Prolog | Planificado | Reglas de aceptacion disenadas para conexion con Python |
-| Traductor contextual PLN | Planificado | Mapeo de secuencias gramaticales hacia espanol |
-| Hardware Arduino | Planificado | Firmware base preparado para integracion con PySerial |
+1. El sensor optico entrega fotogramas a una tasa de muestreo de hasta 30 FPS.
+2. MediaPipe procesa el cuadro y produce 21 puntos clave por mano. Si se detectan dos extremidades, se emiten 126 valores flotantes; si solo hay una mano o ninguna, el vector se rellena congruentemente con ceros preservando las dimensiones fijas.
+3. El vector se normaliza desplazando la muneca al origen `(0, 0, 0)` y dividiendo las distancias relativas por la escala de la palma.
+4. El vector normalizado entra al buffer temporal. Una vez alcanzados los 30 cuadros, la matriz de dimension `(30, 126)` se evalua en el modelo recurrente.
+5. El modelo devuelve una distribucion de probabilidades. Prolog consulta si la clase ganadora supera el umbral de 0.85 y si ha mantenido consistencia a lo largo de 10 cuadros consecutivos.
+6. Si la seña se valida y se detecta una pausa posterior, el buffer de glosas acumuladas se despacha al traductor PLN.
+7. La oracion generada (por ejemplo, `"Yo quiero agua."` a partir de `YO + QUERER + AGUA`) se reproduce de forma simultanea en la pantalla del usuario, en audio sintetizado y a traves del display fisico de Arduino.
 
 ---
 
-## Area 3: Bases, Argumentacion y Detalles Teoricos, Tecnicos y Referencias como Fundamentacion
+## 03 — Implementación
 
-### Tabla de decisiones tecnologicas: Por que este stack?
+Convertir esta arquitectura en codigo funcional implico abordar desafios practicos de sincronizacion, transmision de video y estabilidad matematica.
 
-Para comprender la arquitectura, es util contrastar las decisiones tomadas frente a las alternativas evaluadas:
+### Percepción
 
-| Componente | Opcion elegida | Alternativa descartada | Argumento de la eleccion |
-|---|---|---|---|
-| Entrada de percepcion | MediaPipe Hands (Keypoints 3D) | Pixeles crudos con CNN / YOLO | Reducir la imagen a 126 coordenadas elimina dependencias de iluminacion, tono de piel y fondo, haciendo el modelo miles de veces mas liviano. |
-| Hardware de captura | Camara web / celular estandar | Guantes sensoriales con flexometros | Un guante con sensores cuesta cientos de dolares y es engorroso de colocar. Una camara ya esta integrada en cualquier dispositivo de uso diario. |
-| Modelado temporal | Redes recurrentes LSTM / GRU | Clasificadores estaticos (SVM, Random Forest) | Los gestos continuos dependen del orden y la direccion del movimiento a traves del tiempo; una clasificacion estatica cuadro por cuadro no captura la intencion. |
-| Filtro de estabilidad | Logica declarativa en Prolog | Umbral simple en codigo imperativo | Permite desacoplar las politicas de transicion de estados de la implementacion matematica, facilitando auditoria, explicabilidad y reglas formales. |
-| Despliegue de demo | Flask + ngrok HTTPS | Despliegue en clusters de nube | Permite usar la potencia de computo del equipo personal como nodo local sin incurrir en costos de servidores en la nube durante fases de prototipado. |
-| Salida fisica | Arduino + Pantalla LCD / LEDs | Uso exclusivo de monitor | Provee un canal de retroalimentacion tangible y portable que simula como funcionaria un dispositivo de asistencia autonomo en un mostrador o escritorio. |
+La percepcion articular se resolvio mediante `HandDetector`, implementado en OpenCV y MediaPipe. La primera alternativa considerada fue entrenar una red convolucional directamente sobre los pixeles del video; sin embargo, ese enfoque arrastraba dependencias criticas de iluminacion, tono de piel del senante y ruido de fondo.
 
-### Parametros tecnicos formalizados
+Al aislar las articulaciones en 21 landmarks tridimensionales, el problema visual se transforma en un problema geometrico liviano. El normalizador toma estos puntos y asegura que una persona ubicada a dos metros de la camara genere el mismo vector caracteristico que una persona a cincuenta centimetros:
 
-A partir de los requerimientos de tiempo real y capacidad de discriminacion gestual, se establecieron los siguientes parametros de diseno:
+```python
+# Centrado en el origen de la muneca
+wrist = landmarks[0]
+centered = landmarks - wrist
 
-| Parametro | Valor | Justificacion tecnica |
-|---|---|---|
-| Tasa de muestreo objetivo | 30 FPS | Suficiente para registrar el movimiento de las manos sin perdida de informacion cinetica. |
-| Numero de landmarks | 21 puntos por mano | Cubre las falanges distales, intermedias, proximales, metacarpianas y muneca. |
-| Dimension del vector por frame | 126 valores float | `21 puntos * 3 coordenadas (x, y, z) * 2 manos`. |
-| Ventana temporal de analisis | 30 fotogramas | Representa aproximadamente 1 segundo de duracion media de una seña individual en LSP. |
-| Umbral de confianza neuronal | 0.85 (85%) | Criterio de corte para evitar que predicciones dudosas pasen a la cadena de lenguaje. |
-| Estabilidad temporal minima | 10 fotogramas | Exige que la glosa predicha se mantenga constante durante al menos un tercio de segundo. |
+# Escalamiento por la longitud de la palma (distancia muneca a base dedo medio)
+palm_size = np.linalg.norm(landmarks[9] - landmarks[0])
+normalized = centered / (palm_size + 1e-6)
+```
 
-### La supervision logica con Prolog
+### Procesamiento
 
-El rol de Prolog no es procesar imagenes, sino razonar sobre las deducciones generadas por la red neuronal. A continuacion se ilustra la formulacion de las reglas:
+El flujo temporal requiere conservar la historia cinetica del gesto. En lugar de procesar cuadros aislados, agrupamos secuencias continuas en ventanas deslizantes de tamano 30.
+
+Para la etapa logica, Prolog evalua predicciones mediante una base de reglas declarativas. En lugar de llenar el codigo en Python con anidaciones complejas de condiciones `if-else`, la logica de aceptacion se define formalmente:
 
 ```prolog
-% Hechos dinamicos transmitidos desde el script de Python
-prediccion(yo, 0.96, 12).
-prediccion(querer, 0.93, 11).
-prediccion(agua, 0.91, 13).
-
-% Constantes del sistema
-umbral_confianza(0.85).
-min_estabilidad(10).
-
-% Regla: Una glosa es valida si supera ambos criterios
 glosa_valida(Glosa) :-
     prediccion(Glosa, Confianza, Frames),
     umbral_confianza(U),
     min_estabilidad(E),
     Confianza >= U,
     Frames >= E.
+```
 
-% Evaluacion recursiva de la secuencia de senas
+Esto permite auditar con absoluta claridad por que una expresion fue aceptada o rechazada.
+
+### Comunicación
+
+Para demostrar el sistema sin obligar a los evaluadores a instalar Python ni dependencias en sus maquinas, desarrolle una maqueta web basada en Flask (`web_server.py`) y un tunel HTTPS via ngrok.
+
+Aqui surgio un requerimiento de privacidad fundamental: **la camara de mi laptop nunca debia usarse ni compartirse**. La solucion consistio en un esquema cliente-servidor estricto:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Celular as Navegador Movil
+    participant Ngrok as Tunel HTTPS ngrok
+    participant Flask as Servidor Flask (Laptop)
+    participant Motor as MediaPipe Hands
+
+    Celular->>Celular: Abre URL HTTPS y activa su propia camara
+    loop Transmision continua (~12 FPS)
+        Celular->>Celular: Captura frame en canvas local (640x480)
+        Celular->>Ngrok: POST /process_frame (JPEG base64 comprimido al 65%)
+        Ngrok->>Flask: Reenvio local al puerto 5000
+        Flask->>Motor: Inferencia multihilo con cerrojo (threading.Lock)
+        Motor-->>Flask: Coordenadas de articulaciones y handedness
+        Flask->>Flask: Dibuja landmarks y genera vector 126D
+        Flask-->>Ngrok: Retorna JSON con frame anotado y metricas
+        Ngrok-->>Celular: Entrega respuesta
+        Celular->>Celular: Renderiza frame procesado, FPS y latencia
+    end
+```
+
+El navegador movil captura su propia camara via `navigator.mediaDevices.getUserMedia`, comprime el cuadro como JPEG al 65% y lo envia por POST. El servidor decodifica la imagen en memoria, ejecuta MediaPipe, dibuja los landmarks y devuelve el fotograma anotado junto con el vector de 126 keypoints.
+
+### Decisiones
+
+| Criterio | Opcion elegida | Alternativa evaluada | Justificacion tecnica |
+|---|---|---|---|
+| Entrada de percepcion | MediaPipe Hands (126 floats) | Pixeles crudos con CNN / YOLO | Reducir el frame a 126 coordenadas elimina dependencias de fondo, ropa e iluminacion, reduciendo drasticamente la memoria de computo. |
+| Hardware de captura | Camara web o celular estandar | Guantes de datos con sensores de flexion | Un guante con sensores cuesta cientos de dolares y es incomodo de usar. Una camara ya existe en cualquier bolsillo. |
+| Modelado temporal | Redes recurrentes LSTM / GRU | Clasificadores estaticos cuadro por cuadro | Las senas dependen del orden y direccion del movimiento en el tiempo; una clasificacion estatica pierde la dinamica continua. |
+| Logica de control | Supervision simbolica en Prolog | Logica imperativa con condicionales | Desacopla las reglas de negocio de la red neuronal, permitiendo trazabilidad y garantias formales en la confirmacion de glosas. |
+| Demostracion remota | Flask local + tunel ngrok HTTPS | Servidores en la nube (AWS / GCP) | Aprovecha la potencia del equipo de desarrollo sin incurrir en costos de infraestructura durante la fase de prototipado. |
+| Feedback fisico | Arduino + Pantalla LCD / LEDs | Monitor convencional exclusivamente | Simula el comportamiento de un dispositivo de asistencia autonomo para mostradores de atencion ciudadana. |
+
+### Resultados
+
+En pruebas reales con telefonos inteligentes conectados a traves de redes inalambricas convencionales (4G y Wi-Fi), se obtuvieron las siguientes mediciones operativas:
+
+- **Frecuencia de transmision web:** 11 a 13 FPS, proporcionando una percepcion visual continua.
+- **Latencia de ida y vuelta (RTT):** 85 a 115 milisegundos entre la captura del celular, el envio a ngrok, la inferencia en Flask y el retorno al navegador.
+- **Peso de transferencia:** 32 a 42 KB por fotograma, liviano para consumo de datos moviles.
+- **Uso de procesador (CPU):** Entre 18% y 24% en CPU estandar, demostrando que no se requiere GPU dedicada para la percepcion articular.
+- **Pruebas unitarias automatizadas (`tests/test_vision.py`):** 4 pruebas ejecutadas con exito en 0.17 segundos, validando integridad dimensional (126 floats), invarianza espacial y resiliencia ante imagenes vacias.
+
+### Limitaciones
+
+- **Saturacion de ancho de banda:** Si la conexion a internet del cliente experimenta fluctuaciones severas, la tasa de fotogramas decae por debajo de 8 FPS, afectando la suavidad visual.
+- **Oclusion de articulaciones:** Si una mano cubre completamente a la otra en senas cruzadas, MediaPipe puede perder momentaneamente la posicion de los dedos ocluidos.
+- **Dataset en desarrollo:** Aunque el pipeline de vision esta al 100%, el clasificador neuronal requiere culminar la etapa de grabacion controlada de secuencias para iniciar el entrenamiento formal.
+
+---
+
+## 04 — Fundamentos
+
+### Representación gestual
+
+MediaPipe Hands desacopla el problema en dos redes convolucionales: un detector de palmas que opera sobre el fotograma completo y un modelo de regresion que estima 21 puntos tridimensionales por mano. Trabajar con coordenadas articulares reduce los datos de entrada desde matrices de miles de pixeles (`640 * 480 * 3 = 921,600` valores) hacia un vector estructurado de solo 126 escalares:
+
+$$\text{Vector por frame} = 21 \text{ landmarks} \times 3 \text{ dimensiones } (x, y, z) \times 2 \text{ manos} = 126 \text{ floats}$$
+
+Esta reduccion de dimensionalidad es la que permite procesar el video en tiempo real incluso en computadores portatiles sin aceleradores graficos dedicados.
+
+### Reconocimiento temporal
+
+Las senas no son posturas estaticas; son trayectorias continuas en el espacio. Las redes neuronales recurrentes LSTM (Long Short-Term Memory) incorporan celdas de memoria y compuertas de olvido, entrada y salida que regulan el flujo de informacion a traves del tiempo:
+
+$$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$$
+$$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$$
+$$C_t = f_t * C_{t-1} + i_t * \tilde{C}_t$$
+$$h_t = o_t * \tanh(C_t)$$
+
+Esto permite a la red retener patrones de movimientos ejecutados al inicio del fotograma 1 y relacionarlos con el desenlace del fotograma 30, capturando la intencion del gesto.
+
+### Inferencia simbólica
+
+La combinacion de tecnicas subsimbolicas (redes neuronales) con tecnicas simbolicas (logica de primer orden) conforma un sistema hibrido. Mientras la red neuronal calcula la distribucion probabilistica de que un gesto sea una determinada seña, Prolog gobierna el estado del agente:
+
+```prolog
+% Hechos que recibe el sistema desde Python
+prediccion(yo, 0.96, 12).
+prediccion(querer, 0.93, 11).
+prediccion(agua, 0.91, 13).
+
+% Constantes operativas
+umbral_confianza(0.85).
+min_estabilidad(10).
+
+% Evaluacion recursiva de la secuencia
 todas_validas([]).
 todas_validas([Glosa|Resto]) :-
-    glosa_valida(Glosa),
+    prediccion(Glosa, Confianza, Frames),
+    umbral_confianza(U),
+    min_estabilidad(E),
+    Confianza >= U,
+    Frames >= E,
     todas_validas(Resto).
 
-% Diccionario sintactico: Glosas LSP a oracion formal en espanol
+% Diccionario semantico
 oracion([yo, querer, agua], 'Yo quiero agua.').
-oracion([hola, buenos_dias], 'Hola, muy buenos dias.').
-oracion([ayuda, por_favor], 'Por favor, necesito ayuda.').
 
-% Regla de inferencia general
+% Meta principal
 evaluar(Secuencia, Oracion) :-
     todas_validas(Secuencia),
     oracion(Secuencia, Oracion).
 ```
 
-Al consultar:
-```prolog
-?- evaluar([yo, querer, agua], Oracion).
-Oracion = 'Yo quiero agua.'.
-```
-Si alguna de las senas de la secuencia tuvo baja confianza o duracion insuficiente, la unificacion falla y el sistema solicita de forma preventiva la repeticion del gesto antes de emitir una oracion erronea.
+Si el modelo detecta un gesto con 0.70 de certeza debido a iluminacion deficiente, la unificacion falla y el sistema evita generar texto incoherente.
 
-### Vocabulario inicial del repositorio
+### Procesamiento del lenguaje
 
-Definido en `config/actions.py`, comprende 9 clases fundamentales para evaluar el comportamiento del pipeline:
+La Lengua de Senas Peruana presenta una estructura sintactica diferente al espanol. Una persona sorda puede articular la secuencia de glosas `[YO, AGUA, QUERER]` o `[YO, QUERER, AGUA]`. La labor del componente de PLN es normalizar estas estructuras para construir oraciones formales con conjugaciones verbales correctas y articulos concordantes.
 
-```mermaid
-graph LR
-    V["Vocabulario LSP Inicial"]
-    V --> C0["0: REPOSO (Manos abajo / neutro)"]
-    V --> C1["1: HOLA (Saludo inicial)"]
-    V --> C2["2: GRACIAS (Agradecimiento)"]
-    V --> C3["3: POR_FAVOR (Cortesía)"]
-    V --> C4["4: AYUDA (Solicitud de auxilio)"]
-    V --> C5["5: YO (Pronombre personal)"]
-    V --> C6["6: QUERER (Expresion de deseo)"]
-    V --> C7["7: AGUA (Sustantivo basico)"]
-    V --> C8["8: BUENOS_DIAS (Expresion compuesta)"]
-```
+### Referencias
 
-### Fundamentacion teorica y antecedentes
-
-Este diseno se respalda en la literatura cientifica especializada en reconocimiento de lengua de senas:
-
-- **Briones Cerquin y Tumay Guevara (2025):** Demostraron en su investigacion para la Universidad Tecnologica del Peru (y su publicacion en el *International Journal of Interactive Mobile Technologies*) que un pipeline de camara web + MediaPipe + LSTM alcanza precisiones de hasta 99.40% para secuencias dinamicas de 14 señas de la LSP, validando la solidez de esta combinacion tecnologica.
-- **Camgoz et al. (2020):** Sustentan la necesidad de separar la etapa de reconocimiento de glosas de la etapa de traduccion al idioma natural, demostrando que los modelos secuenciales y de atencion aprenden mejor cuando las representaciones visuales no intentan mapearse directamente a texto sin una capa intermedia.
-- **Damdoo, Kumar y Gogoi (2026):** Abordan la traduccion continua a nivel de oraciones completas, corroborando que tratar las señas como una secuencia estructurada y no como gestos aislados es la clave para una comunicacion interactiva real.
-- **Ananthanarayana et al. (2021):** Evaluaron diferentes tecnicas de Deep Learning para traduccion de senas, concluyendo que la extraccion articular normalizada minimiza el sobreajuste frente a variaciones en la contextura de las personas y el fondo visual.
-- **Russell y Norvig (2021):** Proporcionan el marco de agentes inteligentes racionales que combina percepcion sensorial, razonamiento simbolico y actuadores multimodales.
-- **Lugaresi et al. (2019) y Zhang et al. (2020):** Documentan la arquitectura de MediaPipe Hands y la regresion topologica en tiempo real de 21 landmarks tridimensionales sobre CPU de consumo.
+- **Ananthanarayana, T. et al. (2021).** Deep learning methods for sign language translation. *ACM Transactions on Accessible Computing*, 14(4), 1-30.
+- **Briones Cerquin, A. D. y Tumay Guevara, J. A. (2025).** *Reconocimiento y clasificacion continua de imagenes de la Lengua de Senas Peruana empleando Deep Learning*. Tesis de pregrado, Universidad Tecnologica del Peru.
+- **Camgoz, N. C. et al. (2020).** Sign language transformers: Joint end-to-end sign language recognition and translation. *IEEE/CVF CVPR*, 10023-10033.
+- **Clocksin, W. F. y Mellish, C. S. (2003).** *Programming in Prolog: Using the ISO standard* (5ta ed.). Springer.
+- **Damdoo, R., Kumar, P. y Gogoi, R. (2026).** End-to-end sentence-level Indian sign language translation with ISH-NEWS dataset and transformer model. *Scientific Reports*.
+- **Lugaresi, C. et al. (2019).** MediaPipe: A framework for building perception pipelines. *arXiv preprint arXiv:1906.08172*.
+- **Russell, S. J. y Norvig, P. (2021).** *Artificial Intelligence: A Modern Approach* (4ta ed.). Pearson.
+- **Zhang, F. et al. (2020).** MediaPipe Hands: On-device real-time hand tracking. *arXiv preprint arXiv:2006.10214*.
 
 ---
 
-## Referencias Bibliograficas
+## 05 — Estado
 
-- Ananthanarayana, T., Srivastava, P., Chintha, A., Santha, A., Landy, B., Panaro, J., Webster, A., Kotecha, N., Sah, S., Sarchet, T., Ptucha, R., & Nwogu, I. (2021). Deep learning methods for sign language translation. *ACM Transactions on Accessible Computing*, *14*(4), Article 22, 1-30. https://doi.org/10.1145/3477498
-- Briones Cerquin, A. D., & Tumay Guevara, J. A. (2025). *Reconocimiento y clasificacion continua de imagenes de la Lengua de Senas Peruana empleando Deep Learning* [Tesis de pregrado, Universidad Tecnologica del Peru]. Repositorio Institucional UTP. https://hdl.handle.net/20.500.12867/12362
-- Briones Cerquin, A. D., Tumay Guevara, J. A., & Ovalle, C. (2025). Mobile application for continuous recognition and classification of sign language images through deep learning. *International Journal of Interactive Mobile Technologies (iJIM)*, *19*(7), 4-21. https://doi.org/10.3991/ijim.v19i07.52853
-- Camgoz, N. C., Koller, O., Hadfield, S., & Bowden, R. (2020). Sign language transformers: Joint end-to-end sign language recognition and translation. En *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition* (pp. 10023-10033). https://doi.org/10.1109/CVPR42600.2020.01004
-- Clocksin, W. F., & Mellish, C. S. (2003). *Programming in Prolog: Using the ISO standard* (5.a ed.). Springer. https://doi.org/10.1007/978-3-642-55481-0
-- Damdoo, R., Kumar, P., & Gogoi, R. (2026). End-to-end sentence-level Indian sign language translation with ISH-NEWS dataset and transformer model. *Scientific Reports*. https://doi.org/10.1038/s41598-026-60893-0
-- Lugaresi, C., Tang, J., Nash, H., McClanahan, C., Uboweja, E., Hays, M., Zhang, F., Chang, C.-L., Yong, M. G., Lee, J., Chang, W.-T., Hua, W., Georg, M., & Grundmann, M. (2019). *MediaPipe: A framework for building perception pipelines* [Preprint]. arXiv. https://doi.org/10.48550/arXiv.1906.08172
-- mrln-trrs. (2026). *interprete-lsp: Interprete de Lengua de Senas Peruana con Inteligencia Artificial* [Codigo fuente]. GitHub. https://github.com/mrln-trrs/interprete-lsp
-- Russell, S. J., & Norvig, P. (2021). *Artificial intelligence: A modern approach* (4.a ed.). Pearson.
-- Zhang, F., Bazarevsky, V., Vakunov, A., Tkachenka, A., Sung, G., Chang, C.-L., & Grundmann, M. (2020). *MediaPipe Hands: On-device real-time hand tracking* [Preprint]. arXiv. https://doi.org/10.48550/arXiv.2006.10214
+### Actual
+
+- Modulo de percepcion visual y extraccion de 126 caracteristicas culminado al 100%.
+- Normalizador espacial con invarianza de escala y centrado operativo.
+- Suite de pruebas unitarias automatizadas (`tests/test_vision.py`) superada.
+- Maqueta web remota desplegada mediante Flask + ngrok HTTPS con cliente movil funcional y preservacion estricta de la camara del servidor.
+- Vocabulario inicial de 9 clases estructurado en `config/actions.py`.
+
+### Siguiente
+
+- Culminar el script de grabacion sistematica de muestras (`src/data_collection/record_samples.py`) para capturar entre 30 y 50 repeticiones por cada una de las 9 glosas.
+- Entrenar y evaluar la red neuronal recurrente LSTM sobre el corpus generado.
+- Exponer el endpoint de prediccion continua en el servidor web para que la interfaz movil no solo muestre los keypoints, sino la oracion traducida en tiempo real.
+- Conectar la salida validada hacia el firmware de Arduino para despliegue en pantalla LCD fisica.
+
+### Código
+
+El proyecto completo, el codigo fuente, las pruebas y las instrucciones de reproduccion local estan disponibles en el repositorio publico:  
+[https://github.com/mrln-trrs/interprete-lsp](https://github.com/mrln-trrs/interprete-lsp)
