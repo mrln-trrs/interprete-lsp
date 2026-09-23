@@ -4,7 +4,7 @@
 > **Estado:** Prototipo funcional (percepcion, pruebas unitarias y maqueta web remota completadas)  
 > **Tipo:** Computer Vision · Deep Learning · NLP · Software Architecture  
 >
-> Desarrolle un sistema de interpretacion en tiempo real para la Lengua de Senas Peruana (LSP) capaz de operar sobre hardware convencional sin requerir sensores fisicos ni guantes especiales. El sistema extrae 126 coordenadas articulares tridimensionales mediante MediaPipe Hands, procesa la dinamica temporal a traves de una red recurrente (LSTM/GRU), filtra la estabilidad con reglas logicas en Prolog y traduce las secuencias a oraciones coherentes en espanol. Actualmente el proyecto cuenta con el pipeline de vision validado bajo pruebas unitarias automatizadas y una maqueta web funcional que permite a cualquier usuario transmitir video desde la camara de su propio celular hacia el servidor local via tunel seguro ngrok, manteniendo protegida la camara del anfitrion.
+> Se desarrolla un sistema de interpretacion en tiempo real para la Lengua de Senas Peruana (LSP) capaz de operar sobre hardware convencional sin requerir sensores fisicos ni guantes especiales. El sistema extrae 126 coordenadas articulares tridimensionales mediante MediaPipe Hands, procesa la dinamica temporal a traves de una red recurrente (LSTM/GRU), filtra la estabilidad con reglas logicas en Prolog y traduce las secuencias a oraciones coherentes en espanol. Actualmente el proyecto cuenta con el pipeline de vision validado bajo pruebas unitarias automatizadas y una maqueta web funcional que permite a cualquier usuario transmitir video desde la camara de su propio celular hacia el servidor local via tunel seguro ngrok, manteniendo totalmente protegida la camara del anfitrion.
 
 ---
 
@@ -12,7 +12,7 @@
 
 En el Peru, las personas con discapacidad auditiva enfrentan a diario una brecha de comunicacion constante: la inmensa mayoria de la poblacion oyente no conoce la Lengua de Senas Peruana. Esto convierte gestiones cotidianas, como acudir a un centro de salud, realizar tramites bancarios o estudiar, en situaciones que dependen casi exclusivamente de la disponibilidad de un interprete humano colegiado.
 
-El proyecto nacio en las aulas de la Universidad Privada San Juan Bautista (VIII ciclo de Ingenieria de Sistemas, asignatura de Inteligencia Artificial guiada por el Mg. Luis Timir Ponce de Leon Arrivasplata), con apoyo colaborativo de Smith Litano, Tracy Sandoval y Piero Rojas en tareas de documentacion, alineacion academica e ideas iniciales. Mi meta al asumir la arquitectura y el desarrollo tecnico fue construir una maqueta funcional de codigo abierto orientada a un proposito estrictamente altruista: demostrar que es viable crear tecnologia asistiva accesible sin obligar al usuario a adquirir equipamiento privativo ni sensores de alto costo.
+El proyecto surge en el entorno academico de la Universidad Privada San Juan Bautista (VIII ciclo de Ingenieria de Sistemas, asignatura de Inteligencia Artificial guiada por el Mg. Luis Timir Ponce de Leon Arrivasplata). El proposito fundamental de este trabajo es construir una maqueta funcional de codigo abierto orientada a un fin altruista: demostrar que es viable crear tecnologia asistiva accesible sin obligar al usuario a adquirir equipamiento privativo ni sensores de alto costo. A partir de esa premisa, el desarrollo se ha estructurado para que el sistema opere con dispositivos ordinarios y sirva como una base practica, abierta y reproducible.
 
 ### Objetivo
 
@@ -117,7 +117,7 @@ normalized = centered / (palm_size + 1e-6)
 
 ### Procesamiento
 
-El flujo temporal requiere conservar la historia cinetica del gesto. En lugar de procesar cuadros aislados, agrupamos secuencias continuas en ventanas deslizantes de tamano 30.
+El flujo temporal requiere conservar la historia cinetica del gesto. En lugar de procesar cuadros aislados, se agrupan secuencias continuas en ventanas deslizantes de tamano 30.
 
 Para la etapa logica, Prolog evalua predicciones mediante una base de reglas declarativas. En lugar de llenar el codigo en Python con anidaciones complejas de condiciones `if-else`, la logica de aceptacion se define formalmente:
 
@@ -134,9 +134,9 @@ Esto permite auditar con absoluta claridad por que una expresion fue aceptada o 
 
 ### Comunicación
 
-Para demostrar el sistema sin obligar a los evaluadores a instalar Python ni dependencias en sus maquinas, desarrolle una maqueta web basada en Flask (`web_server.py`) y un tunel HTTPS via ngrok.
+Para demostrar el sistema sin obligar a los evaluadores a instalar Python ni dependencias en sus maquinas, se desarrollo una maqueta web basada en Flask (`web_server.py`) y un tunel HTTPS via ngrok.
 
-Aqui surgio un requerimiento de privacidad fundamental: **la camara de mi laptop nunca debia usarse ni compartirse**. La solucion consistio en un esquema cliente-servidor estricto:
+Aqui surgio un requerimiento de privacidad fundamental: **la camara de la laptop anfitriona nunca debe usarse ni compartirse**. La solucion se planteo mediante un esquema cliente-servidor estricto:
 
 ```mermaid
 sequenceDiagram
