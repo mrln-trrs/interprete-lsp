@@ -4,13 +4,13 @@
 > **Estado:** Prototipo funcional (percepcion, pruebas unitarias y maqueta web remota completadas)  
 > **Tipo:** Computer Vision · Deep Learning · NLP · Software Architecture  
 >
-> Se desarrolla un sistema de interpretacion en tiempo real para la Lengua de Senas Peruana (LSP) capaz de operar sobre hardware convencional sin requerir sensores fisicos ni guantes especiales. El sistema extrae 126 coordenadas articulares tridimensionales mediante MediaPipe Hands, procesa la dinamica temporal a traves de una red recurrente (LSTM/GRU), filtra la estabilidad con reglas logicas en Prolog y traduce las secuencias a oraciones coherentes en espanol. Actualmente el proyecto cuenta con el pipeline de vision validado bajo pruebas unitarias automatizadas y una maqueta web funcional que permite a cualquier usuario transmitir video desde la camara de su propio celular hacia el servidor local via tunel seguro ngrok, manteniendo totalmente protegida la camara del anfitrion.
+> Se desarrolla un sistema de interpretacion en tiempo real para la Lengua de Senas Peruana (LSP) capaz de operar sobre hardware convencional sin requerir sensores fisicos ni guantes especiales. El sistema extrae 126 coordenadas articulares tridimensionales mediante MediaPipe Hands ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)), procesa la dinamica temporal a traves de una red recurrente LSTM/GRU ([Briones Cerquin et al., 2025](https://doi.org/10.3991/ijim.v19i07.52853)), filtra la estabilidad con reglas logicas en Prolog ([Clocksin y Mellish, 2003](https://doi.org/10.1007/978-3-642-55481-0)) y traduce las secuencias a oraciones coherentes en espanol ([Camgoz et al., 2020](https://doi.org/10.1109/CVPR42600.2020.01004)). Actualmente el proyecto cuenta con el pipeline de vision validado bajo pruebas unitarias automatizadas y una maqueta web funcional que permite a cualquier usuario transmitir video desde la camara de su propio celular hacia el servidor local via tunel seguro ngrok, manteniendo totalmente protegida la camara del anfitrion.
 
 ---
 
 ## 01 — Contexto
 
-En el Peru, las personas con discapacidad auditiva enfrentan a diario una brecha de comunicacion constante: la inmensa mayoria de la poblacion oyente no conoce la Lengua de Senas Peruana. Esto convierte gestiones cotidianas, como acudir a un centro de salud, realizar tramites bancarios o estudiar, en situaciones que dependen casi exclusivamente de la disponibilidad de un interprete humano colegiado.
+En el Peru, las personas con discapacidad auditiva enfrentan a diario una brecha de comunicacion constante: la inmensa mayoria de la poblacion oyente no conoce la Lengua de Senas Peruana ([Briones Cerquin y Tumay Guevara, 2025](https://hdl.handle.net/20.500.12867/12362); [Llantoy Lujan, 2024](https://hdl.handle.net/20.500.12867/12158)). Esto convierte gestiones cotidianas, como acudir a un centro de salud, realizar tramites bancarios o estudiar, en situaciones que dependen casi exclusivamente de la disponibilidad de un interprete humano colegiado.
 
 El proyecto surge en el entorno academico de la Universidad Privada San Juan Bautista (VIII ciclo de Ingenieria de Sistemas, asignatura de Inteligencia Artificial guiada por el Mg. Luis Timir Ponce de Leon Arrivasplata). El proposito fundamental de este trabajo es construir una maqueta funcional de codigo abierto orientada a un fin altruista: demostrar que es viable crear tecnologia asistiva accesible sin obligar al usuario a adquirir equipamiento privativo ni sensores de alto costo. A partir de esa premisa, el desarrollo se ha estructurado para que el sistema opere con dispositivos ordinarios y sirva como una base practica, abierta y reproducible.
 
@@ -38,7 +38,7 @@ Desarrollar un sistema capaz de capturar secuencias continuas de Lengua de Senas
 
 ### Sistema
 
-La arquitectura esta disenada como una canalizacion modular por capas desacopladas. En lugar de alimentar una red neuronal con imagenes crudas en un esquema monolítico, el sistema divide el problema en percepcion geometrica, analisis temporal, supervision formal y adaptacion linguistica.
+La arquitectura esta disenada como una canalizacion modular por capas desacopladas ([Lugaresi et al., 2019](https://doi.org/10.48550/arXiv.1906.08172)). En lugar de alimentar una red neuronal con imagenes crudas en un esquema monolítico, el sistema divide el problema en percepcion geometrica, analisis temporal, supervision formal y adaptacion linguistica.
 
 ```mermaid
 flowchart TD
@@ -72,12 +72,12 @@ flowchart TD
 
 ### Componentes
 
-- **Modulo de Percepcion (`src/vision/detector.py`):** Encapsula el detector MediaPipe Hands para localizar manos en el cuadro de video y obtener las coordenadas relativas de 21 articulaciones por extremidad.
+- **Modulo de Percepcion (`src/vision/detector.py`):** Encapsula el detector MediaPipe Hands para localizar manos en el cuadro de video y obtener las coordenadas relativas de 21 articulaciones por extremidad ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)).
 - **Modulo de Normalizacion (`src/vision/normalizer.py`):** Transforma la geometria cruda en coordenadas invariantes a escala y traslacion espacial.
 - **Buffer Temporal:** Memoria de tipo cola circular que acumula las ultimas 30 muestras temporales, equivalentes a aproximadamente un segundo de movimiento continuo.
-- **Clasificador Recurrente (`src/training/model_builder.py`):** Red profunda con capas LSTM/GRU que aprende patrones de trayectoria y transicion entre articulaciones.
-- **Supervisión Logica en Prolog:** Modulo basado en conocimiento que aplica reglas deterministas sobre la confianza y duracion del gesto, impidiendo que parpadeos visuales activen predicciones espurias.
-- **Traductor Contextual (`src/nlp/translator.py`):** Componente de procesamiento de lenguaje natural encargado de mapear la cadena de glosas hacia la sintaxis del espanol hablado.
+- **Clasificador Recurrente (`src/training/model_builder.py`):** Red profunda con capas LSTM/GRU que aprende patrones de trayectoria y transicion entre articulaciones ([Ananthanarayana et al., 2021](https://doi.org/10.1145/3477498)).
+- **Supervisión Logica en Prolog:** Modulo basado en conocimiento que aplica reglas deterministas sobre la confianza y duracion del gesto, impidiendo que parpadeos visuales activen predicciones espurias ([Clocksin y Mellish, 2003](https://doi.org/10.1007/978-3-642-55481-0)).
+- **Traductor Contextual (`src/nlp/translator.py`):** Componente de procesamiento de lenguaje natural encargado de mapear la cadena de glosas hacia la sintaxis del espanol hablado ([Camgoz et al., 2020](https://doi.org/10.1109/CVPR42600.2020.01004)).
 - **Servidor Web de Demostracion (`web_server.py`):** Aplicacion Flask que procesa fotogramas enviados por clientes remotos mediante endpoints REST.
 - **Controlador Fisico (`src/hardware/serial_controller.py` y `arduino/`):** Canal de comunicacion serial PySerial para actualizar una pantalla LCD y diodos LED indicadores.
 
@@ -101,7 +101,7 @@ Convertir esta arquitectura en codigo funcional implico abordar desafios practic
 
 ### Percepción
 
-La percepcion articular se resolvio mediante `HandDetector`, implementado en OpenCV y MediaPipe. La primera alternativa considerada fue entrenar una red convolucional directamente sobre los pixeles del video; sin embargo, ese enfoque arrastraba dependencias criticas de iluminacion, tono de piel del senante y ruido de fondo.
+La percepcion articular se resolvio mediante `HandDetector`, implementado en OpenCV y MediaPipe ([Lugaresi et al., 2019](https://doi.org/10.48550/arXiv.1906.08172)). La primera alternativa considerada fue entrenar una red convolucional directamente sobre los pixeles del video; sin embargo, ese enfoque arrastraba dependencias criticas de iluminacion, tono de piel del senante y ruido de fondo.
 
 Al aislar las articulaciones en 21 landmarks tridimensionales, el problema visual se transforma en un problema geometrico liviano. El normalizador toma estos puntos y asegura que una persona ubicada a dos metros de la camara genere el mismo vector caracteristico que una persona a cincuenta centimetros:
 
@@ -119,7 +119,7 @@ normalized = centered / (palm_size + 1e-6)
 
 El flujo temporal requiere conservar la historia cinetica del gesto. En lugar de procesar cuadros aislados, se agrupan secuencias continuas en ventanas deslizantes de tamano 30.
 
-Para la etapa logica, Prolog evalua predicciones mediante una base de reglas declarativas. En lugar de llenar el codigo en Python con anidaciones complejas de condiciones `if-else`, la logica de aceptacion se define formalmente:
+Para la etapa logica, Prolog evalua predicciones mediante una base de reglas declarativas ([Clocksin y Mellish, 2003](https://doi.org/10.1007/978-3-642-55481-0)). En lugar de llenar el codigo en Python con anidaciones complejas de condiciones `if-else`, la logica de aceptacion se define formalmente:
 
 ```prolog
 glosa_valida(Glosa) :-
@@ -166,10 +166,10 @@ El navegador movil captura su propia camara via `navigator.mediaDevices.getUserM
 
 | Criterio | Opcion elegida | Alternativa evaluada | Justificacion tecnica |
 |---|---|---|---|
-| Entrada de percepcion | MediaPipe Hands (126 floats) | Pixeles crudos con CNN / YOLO | Reducir el frame a 126 coordenadas elimina dependencias de fondo, ropa e iluminacion, reduciendo drasticamente la memoria de computo. |
+| Entrada de percepcion | MediaPipe Hands (126 floats) | Pixeles crudos con CNN / YOLO | Reducir el frame a 126 coordenadas elimina dependencias de fondo, ropa e iluminacion, reduciendo drasticamente la memoria de computo ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)). |
 | Hardware de captura | Camara web o celular estandar | Guantes de datos con sensores de flexion | Un guante con sensores cuesta cientos de dolares y es incomodo de usar. Una camara ya existe en cualquier bolsillo. |
-| Modelado temporal | Redes recurrentes LSTM / GRU | Clasificadores estaticos cuadro por cuadro | Las senas dependen del orden y direccion del movimiento en el tiempo; una clasificacion estatica pierde la dinamica continua. |
-| Logica de control | Supervision simbolica en Prolog | Logica imperativa con condicionales | Desacopla las reglas de negocio de la red neuronal, permitiendo trazabilidad y garantias formales en la confirmacion de glosas. |
+| Modelado temporal | Redes recurrentes LSTM / GRU | Clasificadores estaticos cuadro por cuadro | Las senas dependen del orden y direccion del movimiento en el tiempo; una clasificacion estatica pierde la dinamica continua ([Damdoo et al., 2026](https://doi.org/10.1038/s41598-026-60893-0)). |
+| Logica de control | Supervision simbolica en Prolog | Logica imperativa con condicionales | Desacopla las reglas de negocio de la red neuronal, permitiendo trazabilidad y garantias formales en la confirmacion de glosas ([Russell y Norvig, 2021](https://aima.cs.berkeley.edu/)). |
 | Demostracion remota | Flask local + tunel ngrok HTTPS | Servidores en la nube (AWS / GCP) | Aprovecha la potencia del equipo de desarrollo sin incurrir en costos de infraestructura durante la fase de prototipado. |
 | Feedback fisico | Arduino + Pantalla LCD / LEDs | Monitor convencional exclusivamente | Simula el comportamiento de un dispositivo de asistencia autonomo para mostradores de atencion ciudadana. |
 
@@ -195,7 +195,7 @@ En pruebas reales con telefonos inteligentes conectados a traves de redes inalam
 
 ### Representación gestual
 
-MediaPipe Hands desacopla el problema en dos redes convolucionales: un detector de palmas que opera sobre el fotograma completo y un modelo de regresion que estima 21 puntos tridimensionales por mano. Trabajar con coordenadas articulares reduce los datos de entrada desde matrices de miles de pixeles (`640 * 480 * 3 = 921,600` valores) hacia un vector estructurado de solo 126 escalares:
+MediaPipe Hands desacopla el problema en dos redes convolucionales: un detector de palmas que opera sobre el fotograma completo y un modelo de regresion que estima 21 puntos tridimensionales por mano ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)). Trabajar con coordenadas articulares reduce los datos de entrada desde matrices de miles de pixeles (`640 * 480 * 3 = 921,600` valores) hacia un vector estructurado de solo 126 escalares:
 
 $$\text{Vector por frame} = 21 \text{ landmarks} \times 3 \text{ dimensiones } (x, y, z) \times 2 \text{ manos} = 126 \text{ floats}$$
 
@@ -203,7 +203,7 @@ Esta reduccion de dimensionalidad es la que permite procesar el video en tiempo 
 
 ### Reconocimiento temporal
 
-Las senas no son posturas estaticas; son trayectorias continuas en el espacio. Las redes neuronales recurrentes LSTM (Long Short-Term Memory) incorporan celdas de memoria y compuertas de olvido, entrada y salida que regulan el flujo de informacion a traves del tiempo:
+Las senas no son posturas estaticas; son trayectorias continuas en el espacio. Las redes neuronales recurrentes LSTM (Long Short-Term Memory) incorporan celdas de memoria y compuertas de olvido, entrada y salida que regulan el flujo de informacion a traves del tiempo ([Ananthanarayana et al., 2021](https://doi.org/10.1145/3477498); [Briones Cerquin y Tumay Guevara, 2025](https://hdl.handle.net/20.500.12867/12362)):
 
 $$f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f)$$
 $$i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i)$$
@@ -214,7 +214,7 @@ Esto permite a la red retener patrones de movimientos ejecutados al inicio del f
 
 ### Inferencia simbólica
 
-La combinacion de tecnicas subsimbolicas (redes neuronales) con tecnicas simbolicas (logica de primer orden) conforma un sistema hibrido. Mientras la red neuronal calcula la distribucion probabilistica de que un gesto sea una determinada seña, Prolog gobierna el estado del agente:
+La combinacion de tecnicas subsimbolicas (redes neuronales) con tecnicas simbolicas (logica de primer orden) conforma un sistema hibrido ([Russell y Norvig, 2021](https://aima.cs.berkeley.edu/)). Mientras la red neuronal calcula la distribucion probabilistica de que un gesto sea una determinada seña, Prolog gobierna el estado del agente:
 
 ```prolog
 % Hechos que recibe el sistema desde Python
@@ -249,18 +249,22 @@ Si el modelo detecta un gesto con 0.70 de certeza debido a iluminacion deficient
 
 ### Procesamiento del lenguaje
 
-La Lengua de Senas Peruana presenta una estructura sintactica diferente al espanol. Una persona sorda puede articular la secuencia de glosas `[YO, AGUA, QUERER]` o `[YO, QUERER, AGUA]`. La labor del componente de PLN es normalizar estas estructuras para construir oraciones formales con conjugaciones verbales correctas y articulos concordantes.
+La Lengua de Senas Peruana presenta una estructura sintactica diferente al espanol. Una persona sorda puede articular la secuencia de glosas `[YO, AGUA, QUERER]` o `[YO, QUERER, AGUA]`. La labor del componente de PLN es normalizar estas estructuras para construir oraciones formales con conjugaciones verbales correctas y articulos concordantes ([Camgoz et al., 2020](https://doi.org/10.1109/CVPR42600.2020.01004); [Damdoo et al., 2026](https://doi.org/10.1038/s41598-026-60893-0)).
 
 ### Referencias
 
-- **Ananthanarayana, T. et al. (2021).** Deep learning methods for sign language translation. *ACM Transactions on Accessible Computing*, 14(4), 1-30.
-- **Briones Cerquin, A. D. y Tumay Guevara, J. A. (2025).** *Reconocimiento y clasificacion continua de imagenes de la Lengua de Senas Peruana empleando Deep Learning*. Tesis de pregrado, Universidad Tecnologica del Peru.
-- **Camgoz, N. C. et al. (2020).** Sign language transformers: Joint end-to-end sign language recognition and translation. *IEEE/CVF CVPR*, 10023-10033.
-- **Clocksin, W. F. y Mellish, C. S. (2003).** *Programming in Prolog: Using the ISO standard* (5ta ed.). Springer.
-- **Damdoo, R., Kumar, P. y Gogoi, R. (2026).** End-to-end sentence-level Indian sign language translation with ISH-NEWS dataset and transformer model. *Scientific Reports*.
-- **Lugaresi, C. et al. (2019).** MediaPipe: A framework for building perception pipelines. *arXiv preprint arXiv:1906.08172*.
-- **Russell, S. J. y Norvig, P. (2021).** *Artificial Intelligence: A Modern Approach* (4ta ed.). Pearson.
-- **Zhang, F. et al. (2020).** MediaPipe Hands: On-device real-time hand tracking. *arXiv preprint arXiv:2006.10214*.
+- **Ananthanarayana, T., Srivastava, P., Chintha, A., Santha, A., Landy, B., Panaro, J., Webster, A., Kotecha, N., Sah, S., Sarchet, T., Ptucha, R., & Nwogu, I. (2021).** Deep learning methods for sign language translation. *ACM Transactions on Accessible Computing*, *14*(4), Article 22, 1–30. [https://doi.org/10.1145/3477498](https://doi.org/10.1145/3477498)
+- **Briones Cerquin, A. D., & Tumay Guevara, J. A. (2025).** *Reconocimiento y clasificacion continua de imagenes de la Lengua de Senas Peruana empleando Deep Learning* [Tesis de pregrado, Universidad Tecnologica del Peru]. Repositorio Institucional UTP. [https://hdl.handle.net/20.500.12867/12362](https://hdl.handle.net/20.500.12867/12362)
+- **Briones Cerquin, A. D., Tumay Guevara, J. A., & Ovalle, C. (2025).** Mobile application for continuous recognition and classification of sign language images through deep learning. *International Journal of Interactive Mobile Technologies (iJIM)*, *19*(7), 4–21. [https://doi.org/10.3991/ijim.v19i07.52853](https://doi.org/10.3991/ijim.v19i07.52853)
+- **Camgoz, N. C., Koller, O., Hadfield, S., & Bowden, R. (2020).** Sign language transformers: Joint end-to-end sign language recognition and translation. En *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition* (pp. 10023–10033). [https://doi.org/10.1109/CVPR42600.2020.01004](https://doi.org/10.1109/CVPR42600.2020.01004)
+- **Clocksin, W. F., & Mellish, C. S. (2003).** *Programming in Prolog: Using the ISO standard* (5ta ed.). Springer. [https://doi.org/10.1007/978-3-642-55481-0](https://doi.org/10.1007/978-3-642-55481-0)
+- **Damdoo, R., Kumar, P., & Gogoi, R. (2026).** End-to-end sentence-level Indian sign language translation with ISH-NEWS dataset and transformer model. *Scientific Reports*. [https://doi.org/10.1038/s41598-026-60893-0](https://doi.org/10.1038/s41598-026-60893-0)
+- **Llantoy Lujan, F. (2024).** *Implementacion de un aplicativo movil usando Deep Learning para mejorar el reconocimiento de lengua de senas peruana en Lima, Peru 2024* [Tesis de pregrado, Universidad Tecnologica del Peru]. Repositorio Institucional UTP. [https://hdl.handle.net/20.500.12867/12158](https://hdl.handle.net/20.500.12867/12158)
+- **Lugaresi, C., Tang, J., Nash, H., McClanahan, C., Uboweja, E., Hays, M., Zhang, F., Chang, C.-L., Yong, M. G., Lee, J., Chang, W.-T., Hua, W., Georg, M., & Grundmann, M. (2019).** *MediaPipe: A framework for building perception pipelines* [Preprint]. arXiv. [https://doi.org/10.48550/arXiv.1906.08172](https://doi.org/10.48550/arXiv.1906.08172)
+- **Montenegro Cachay, C. A., & Villa Rodriguez, D. R. (2020).** *Sistema inteligente de reconocimiento de lenguaje de senas peruano para mejorar la comunicacion entre las personas sordomudas de la Institucion Educativa Bautista para sordos Harvest en Chiclayo* [Tesis de pregrado, Universidad Nacional Pedro Ruiz Gallo]. Repositorio Institucional UNPRG. [https://hdl.handle.net/20.500.12893/8207](https://hdl.handle.net/20.500.12893/8207)
+- **mrln-trrs. (2026).** *interprete-lsp: Interprete de Lengua de Senas Peruana con Inteligencia Artificial* [Codigo fuente]. GitHub. [https://github.com/mrln-trrs/interprete-lsp](https://github.com/mrln-trrs/interprete-lsp)
+- **Russell, S. J., & Norvig, P. (2021).** *Artificial Intelligence: A Modern Approach* (4ta ed.). Pearson. [https://aima.cs.berkeley.edu/](https://aima.cs.berkeley.edu/)
+- **Zhang, F., Bazarevsky, V., Vakunov, A., Tkachenka, A., Sung, G., Chang, C.-L., & Grundmann, M. (2020).** *MediaPipe Hands: On-device real-time hand tracking* [Preprint]. arXiv. [https://doi.org/10.48550/arXiv.2006.10214](https://doi.org/10.48550/arXiv.2006.10214)
 
 ---
 
