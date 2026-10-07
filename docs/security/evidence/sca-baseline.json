@@ -1,0 +1,583 @@
+﻿{
+    "generated_at":  "2026-10-07T01:11:03.5379518Z",
+    "source":  "https://pypi.org/pypi/{package}/{version}/json",
+    "tool":  "scripts/audit_dependencies.ps1 (PyPI release advisory API; TLS verified by PowerShell)",
+    "requirements_sha256":  "ba21d71fb4be1403b94fec5bc5701f02991144c6b9920fdf4e32969f17853e5d",
+    "dependencies":  [
+                         {
+                             "name":  "absl-py",
+                             "version":  "2.5.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "astunparse",
+                             "version":  "1.6.3",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "attrs",
+                             "version":  "26.1.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "blinker",
+                             "version":  "1.9.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "certifi",
+                             "version":  "2026.7.22",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "cffi",
+                             "version":  "2.1.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "charset-normalizer",
+                             "version":  "3.5.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "click",
+                             "version":  "8.5.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "cloudpickle",
+                             "version":  "3.1.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "comtypes",
+                             "version":  "1.4.17",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "contourpy",
+                             "version":  "1.3.3",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "cycler",
+                             "version":  "0.12.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "flask",
+                             "version":  "3.1.3",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "flatbuffers",
+                             "version":  "25.12.19",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "fonttools",
+                             "version":  "4.66.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "gast",
+                             "version":  "0.7.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "google-pasta",
+                             "version":  "0.2.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "grpcio",
+                             "version":  "1.84.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "h5py",
+                             "version":  "3.16.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "idna",
+                             "version":  "3.20",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "itsdangerous",
+                             "version":  "2.2.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "jax",
+                             "version":  "0.4.34",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "jaxlib",
+                             "version":  "0.4.34",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "jinja2",
+                             "version":  "3.1.6",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "joblib",
+                             "version":  "1.6.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "keras",
+                             "version":  "3.15.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "kiwisolver",
+                             "version":  "1.5.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "libclang",
+                             "version":  "18.1.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "markdown",
+                             "version":  "3.11",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "markdown-it-py",
+                             "version":  "4.2.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "markupsafe",
+                             "version":  "3.0.4",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "matplotlib",
+                             "version":  "3.8.4",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "mdurl",
+                             "version":  "0.1.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "mediapipe",
+                             "version":  "0.10.14",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "ml-dtypes",
+                             "version":  "0.3.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "namex",
+                             "version":  "0.1.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "numpy",
+                             "version":  "1.26.4",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "opencv-contrib-python",
+                             "version":  "4.11.0.86",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "opt-einsum",
+                             "version":  "3.4.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "optree",
+                             "version":  "0.20.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "packaging",
+                             "version":  "26.3",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pandas",
+                             "version":  "3.0.6",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pillow",
+                             "version":  "12.3.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "protobuf",
+                             "version":  "4.25.9",
+                             "vulnerabilities":  [
+                                                     {
+                                                         "aliases":  [
+                                                                         "CVE-2026-0994",
+                                                                         "GHSA-7gcm-g887-7qv7"
+                                                                     ],
+                                                         "details":  "A denial-of-service (DoS) vulnerability exists in google.protobuf.json_format.ParseDict() in Python, where the max_recursion_depth limit can be bypassed when parsing nested google.protobuf.Any messages.\n\nDue to missing recursion depth accounting inside the internal Any-handling logic, an attacker can supply deeply nested Any structures that bypass the intended recursion limit, eventually exhausting Pythonâs recursion stack and causing a RecursionError.",
+                                                         "fixed_in":  [
+                                                                          "5.29.6",
+                                                                          "6.33.5"
+                                                                      ],
+                                                         "id":  "PYSEC-2026-1805",
+                                                         "link":  "https://osv.dev/vulnerability/PYSEC-2026-1805",
+                                                         "source":  "osv",
+                                                         "summary":  null,
+                                                         "withdrawn":  null
+                                                     },
+                                                     {
+                                                         "aliases":  [
+                                                                         "CVE-2026-0994",
+                                                                         "PYSEC-2026-1805"
+                                                                     ],
+                                                         "details":  "A denial-of-service (DoS) vulnerability exists in google.protobuf.json_format.ParseDict() in Python, where the max_recursion_depth limit can be bypassed when parsing nested google.protobuf.Any messages.\n\nDue to missing recursion depth accounting inside the internal Any-handling logic, an attacker can supply deeply nested Any structures that bypass the intended recursion limit, eventually exhausting Pythonâs recursion stack and causing a RecursionError.",
+                                                         "fixed_in":  [
+                                                                          "6.33.5",
+                                                                          "5.29.6"
+                                                                      ],
+                                                         "id":  "GHSA-7gcm-g887-7qv7",
+                                                         "link":  "https://osv.dev/vulnerability/GHSA-7gcm-g887-7qv7",
+                                                         "source":  "osv",
+                                                         "summary":  null,
+                                                         "withdrawn":  null
+                                                     }
+                                                 ]
+                         },
+                         {
+                             "name":  "pycparser",
+                             "version":  "3.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pygments",
+                             "version":  "2.21.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pyparsing",
+                             "version":  "3.3.3",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pypiwin32",
+                             "version":  "223",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pyserial",
+                             "version":  "3.5",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "python-dateutil",
+                             "version":  "2.9.0.post0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pyttsx3",
+                             "version":  "2.90",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "pywin32",
+                             "version":  "312",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "requests",
+                             "version":  "2.34.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "rich",
+                             "version":  "15.0.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "scikit-learn",
+                             "version":  "1.4.2",
+                             "vulnerabilities":  [
+                                                     {
+                                                         "aliases":  [
+                                                                         "CVE-2024-5206",
+                                                                         "PYSEC-2024-110"
+                                                                     ],
+                                                         "details":  "A sensitive data leakage vulnerability was identified in scikit-learn\u0027s TfidfVectorizer, specifically in versions up to and including 1.4.1.post1, which was fixed in version 1.5.0. The vulnerability arises from the unexpected storage of all tokens present in the training data within the `stop_words_` attribute, rather than only storing the subset of tokens required for the TF-IDF technique to function. This behavior leads to the potential leakage of sensitive information, as the `stop_words_` attribute could contain tokens that were meant to be discarded and not stored, such as passwords or keys. The impact of this vulnerability varies based on the nature of the data being processed by the vectorizer.",
+                                                         "fixed_in":  [
+                                                                          "1.5.0"
+                                                                      ],
+                                                         "id":  "GHSA-jw8x-6495-233v",
+                                                         "link":  "https://osv.dev/vulnerability/GHSA-jw8x-6495-233v",
+                                                         "source":  "osv",
+                                                         "summary":  null,
+                                                         "withdrawn":  null
+                                                     },
+                                                     {
+                                                         "aliases":  [
+                                                                         "CVE-2024-5206",
+                                                                         "GHSA-jw8x-6495-233v"
+                                                                     ],
+                                                         "details":  "A sensitive data leakage vulnerability was identified in scikit-learn\u0027s TfidfVectorizer, specifically in versions up to and including 1.4.1.post1, which was fixed in version 1.5.0. The vulnerability arises from the unexpected storage of all tokens present in the training data within the `stop_words_` attribute, rather than only storing the subset of tokens required for the TF-IDF technique to function. This behavior leads to the potential leakage of sensitive information, as the `stop_words_` attribute could contain tokens that were meant to be discarded and not stored, such as passwords or keys. The impact of this vulnerability varies based on the nature of the data being processed by the vectorizer.",
+                                                         "fixed_in":  [
+                                                                          "1.5.0"
+                                                                      ],
+                                                         "id":  "PYSEC-2024-110",
+                                                         "link":  "https://osv.dev/vulnerability/PYSEC-2024-110",
+                                                         "source":  "osv",
+                                                         "summary":  null,
+                                                         "withdrawn":  null
+                                                     }
+                                                 ]
+                         },
+                         {
+                             "name":  "scipy",
+                             "version":  "1.17.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "seaborn",
+                             "version":  "0.13.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "setuptools",
+                             "version":  "84.0.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "six",
+                             "version":  "1.17.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "sounddevice",
+                             "version":  "0.5.6",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tensorboard",
+                             "version":  "2.16.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tensorboard-data-server",
+                             "version":  "0.7.2",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tensorflow",
+                             "version":  "2.16.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tensorflow-intel",
+                             "version":  "2.16.1",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tensorflow-io-gcs-filesystem",
+                             "version":  "0.31.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "termcolor",
+                             "version":  "3.3.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "threadpoolctl",
+                             "version":  "3.7.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "typing-extensions",
+                             "version":  "4.16.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "tzdata",
+                             "version":  "2026.5",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "urllib3",
+                             "version":  "2.8.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "werkzeug",
+                             "version":  "3.1.9",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "wheel",
+                             "version":  "0.48.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         },
+                         {
+                             "name":  "wrapt",
+                             "version":  "2.5.0",
+                             "vulnerabilities":  [
+
+                                                 ]
+                         }
+                     ],
+    "failed_queries":  [
+
+                       ],
+    "limitation":  "Known advisories published by PyPI; no guarantee of completeness or standardized severity. All unresolved advisories block release pending triage."
+}

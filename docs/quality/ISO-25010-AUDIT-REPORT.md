@@ -18,6 +18,8 @@ Este es un informe inicial de brechas y un formato de auditoría futura, no cert
 
 ## Test Summary Report inicial
 
+Actualización de ejecución: cuatro tests de visión PASS; ENV-03 registra bloqueo de SSL/optree; SEC-09 ejecutó scan de secretos sin coincidencias en su alcance y SCA de 73 dependencias. Scikit-learn fue actualizado; protobuf mantiene un aviso alto abierto. Ver [SEC-09](../execution/SEC-09.md). Las notas siguientes preservan la línea base inicial y no reemplazan estos resultados fechados. El dictamen NO APTO continúa.
+
 - Alcance de esta revisión: archivos y documentación; no ejecución del producto.
 - Suite localizada: cuatro pruebas en `tests/test_vision.py`, sin ejecución actual acreditada.
 - Entrenamiento/evaluación: no realizados; sin métricas de reconocimiento verificables.
