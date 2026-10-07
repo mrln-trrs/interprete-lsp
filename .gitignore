@@ -14,6 +14,7 @@ models/trained/*.h5
 models/trained/*.keras
 models/trained/*.tflite
 models/trained/label_encoder.json
+models/trained/
 
 # Archivos del sistema e IDEs
 .vscode/
