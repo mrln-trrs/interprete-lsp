@@ -7,6 +7,13 @@ para el intérprete de Lengua de Señas Peruana (LSP).
 import numpy as np
 
 
+def finite_array(value, shape):
+    array = np.asarray(value)
+    if array.shape != shape or array.dtype.kind not in "fi" or not np.isfinite(array).all():
+        raise ValueError(f"Se requiere una matriz numérica finita con forma {shape}")
+    return array.astype(np.float64)
+
+
 def normalize_hand_landmarks(coords_21x3: np.ndarray) -> np.ndarray:
     """
     Normaliza las coordenadas 3D de una mano (21 landmarks x 3 coordenadas):
@@ -22,8 +29,9 @@ def normalize_hand_landmarks(coords_21x3: np.ndarray) -> np.ndarray:
     Returns:
         Matriz numpy de forma (21, 3) normalizada. Si la mano no tiene datos (ceros), retorna ceros.
     """
+    coords_21x3 = finite_array(coords_21x3, (21, 3))
     if np.all(coords_21x3 == 0):
-        return coords_21x3.copy()
+        return coords_21x3.astype(np.float32)
 
     # 1. Centrado en la muñeca (punto 0)
     wrist = coords_21x3[0, :].copy()
@@ -40,7 +48,10 @@ def normalize_hand_landmarks(coords_21x3: np.ndarray) -> np.ndarray:
     else:
         normalized = centered
 
-    return normalized.astype(np.float32)
+    result = normalized.astype(np.float32)
+    if not np.isfinite(result).all():
+        raise ValueError("La normalización produjo valores no finitos")
+    return result
 
 
 def normalize_keypoints_vector(keypoints_126: np.ndarray) -> np.ndarray:
@@ -55,8 +66,7 @@ def normalize_keypoints_vector(keypoints_126: np.ndarray) -> np.ndarray:
     Returns:
         Array 1D de tamaño (126,) con coordenadas normalizadas.
     """
-    if len(keypoints_126) != 126:
-        raise ValueError(f"Se esperaba un vector de 126 valores, pero se recibió {len(keypoints_126)}")
+    keypoints_126 = finite_array(keypoints_126, (126,))
 
     left_raw = keypoints_126[:63].reshape(21, 3)
     right_raw = keypoints_126[63:].reshape(21, 3)

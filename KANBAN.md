@@ -84,6 +84,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | SEC-09 | Done como auditoría; hallazgo alto abierto bloquea release | [Alcance y evidencia](docs/execution/SEC-09.md) |
 | API-01 | Done: contrato v1, validación y conexión; acceso cerrado hasta SEC-10 | [Contrato y seis pruebas](docs/execution/API-01.md) |
 | SEC-10 | Done: sesiones/cuotas/aislamiento; demo remota aún no aprobada | [Controles, pruebas y límites](docs/execution/SEC-10.md) |
+| VIS-04 | Done para prototipo; asesor/ablación/cámara quedan como deuda | [Esquema provisional y pruebas](docs/execution/VIS-04.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

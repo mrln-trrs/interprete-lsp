@@ -128,6 +128,8 @@ Las metas de F1 son decisiones de proyecto, no resultados ni garantía estadíst
 
 ## Orquestación, hitos y bloqueo pre-código
 
+Actualización de ejecución autorizada: el usuario pidió implementar el Kanban y precisó que Arduino es futuro opcional, la referencia lingüística inicial es el libro oficial peruano y el asesor se difiere hasta un prototipo funcional. Se habilita desarrollo exploratorio con datos gratuitos de procedencia/licencia verificadas y esquema 126D provisional; corpus real, precisión y revisión lingüística siguen pendientes. Ver [deudas](TECHNICAL-DEBT.md). Las notas de «solicitud documental» siguientes describen la entrega inicial, superada por esta autorización.
+
 Esta solicitud entrega documentación; no modifica fuente, dependencias o firmware. El bloqueo pre-código se aplica a nuevos cambios funcionales hasta revisión documentada del plan, sin fingir que el repositorio empieza desde cero. Las skills nombradas en los prompts no están disponibles en esta sesión; sus objetivos se traducen en especificaciones, sin afirmar haber ejecutado esas skills o auditorías.
 
 | Hito | Trabajo y dependencia | Estimación de esfuerzo, sin fechas comprometidas |
