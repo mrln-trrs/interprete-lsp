@@ -159,8 +159,10 @@ _HTML = """<!DOCTYPE html>
   <div class="actions">
     <button id="btn-stop" type="button">Detener cámara</button>
     <button id="btn-clear" type="button">Limpiar texto</button>
+    <label><input id="voice-enabled" type="checkbox"/> Leer texto confirmado</label>
   </div>
   <p id="preflight">Cámara: requiere permiso · Modelo: pendiente · Arduino: futuro opcional</p>
+  <p id="voice-state">Voz desactivada</p>
   <p id="status" role="status" aria-live="polite">Preparado para iniciar</p>
   <section class="output" aria-label="Salida de traducción">
     <p>Candidato: <span id="candidate">—</span></p>

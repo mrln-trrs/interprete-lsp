@@ -38,6 +38,24 @@ let starting = false;
 let inFlight = null;
 const statusText = document.getElementById('status');
 const STATES = new Set(['Idle','Loading','Success','Empty','Error','Partial','Offline']);
+const voiceEnabled = document.getElementById('voice-enabled');
+const voiceState = document.getElementById('voice-state');
+function speakConfirmed(text) {
+  if (!voiceEnabled.checked || !text) return;
+  const synthesis = window.speechSynthesis;
+  const voice = synthesis?.getVoices().find(candidate => candidate.localService && candidate.lang.toLowerCase().startsWith('es'));
+  if (!voice) { voiceState.textContent = 'No hay voz local en español disponible; el texto se conserva'; return; }
+  synthesis.cancel(); // Bound the audio queue to the most recent confirmed sentence.
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voice; utterance.lang = voice.lang;
+  utterance.onerror = () => { voiceState.textContent = 'La voz falló; el texto se conserva'; };
+  synthesis.speak(utterance);
+  voiceState.textContent = 'Voz local activada';
+}
+voiceEnabled.addEventListener('change', () => {
+  if (!voiceEnabled.checked) window.speechSynthesis?.cancel();
+  voiceState.textContent = voiceEnabled.checked ? 'Voz activada para nuevas frases confirmadas' : 'Voz desactivada';
+});
 function setState(state, message) {
   if (!STATES.has(state)) throw new Error('Estado desconocido');
   document.body.dataset.state = state;
@@ -50,6 +68,7 @@ document.getElementById('preflight').textContent =
   ' · Arduino: futuro opcional';
 
 async function clearText() {
+  window.speechSynthesis?.cancel();
   if (sessionId) {
     try {
       const response = await fetch('/api/v1/sessions/' + sessionId + '/clear', {
@@ -75,6 +94,7 @@ window.addEventListener('keydown', event => {
 });
 
 async function stopCamera() {
+  window.speechSynthesis?.cancel();
   generation++;
   inFlight?.abort();
   stream?.getTracks().forEach(t => t.stop());
@@ -199,6 +219,7 @@ async function send() {
     document.getElementById('candidate').textContent = d.prediction ?
       d.prediction.gloss + ' · ' + Math.round(d.prediction.confidence * 100) + '% · ' + d.prediction.stable_frames + '/10' : '—';
     if (d.translation?.text) {
+      speakConfirmed(d.translation.text);
       const item = document.createElement('li'); item.textContent = d.translation.text;
       const history = document.getElementById('history'); history.appendChild(item);
       while (history.children.length > 10) history.firstChild.remove();
