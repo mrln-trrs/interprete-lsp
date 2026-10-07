@@ -1,0 +1,152 @@
+{
+  "source": "PUCP-DGI156 / PeruSIL",
+  "license": "CC0-1.0",
+  "annotation_files": 27,
+  "archive_sha256": "d24ee0bc59d1cc62009f64b0582478b2a9120152f73af5987916757686dc736a",
+  "exact_vocabulary_matches": {
+    "REPOSO": 0,
+    "HOLA": 4,
+    "GRACIAS": 4,
+    "POR_FAVOR": 6,
+    "AYUDA": 0,
+    "YO": 81,
+    "QUERER": 15,
+    "AGUA": 2,
+    "BUENOS_DIAS": 0
+  },
+  "one_second_annotation_matches": {
+    "REPOSO": 0,
+    "HOLA": 0,
+    "GRACIAS": 0,
+    "POR_FAVOR": 1,
+    "AYUDA": 0,
+    "YO": 0,
+    "QUERER": 0,
+    "AGUA": 0,
+    "BUENOS_DIAS": 0
+  },
+  "distinct_labels": 1313,
+  "top_labels": [
+    [
+      "PENSAR",
+      105
+    ],
+    [
+      "MUJER",
+      102
+    ],
+    [
+      "HOMBRE",
+      83
+    ],
+    [
+      "YO",
+      81
+    ],
+    [
+      "CAMINAR",
+      52
+    ],
+    [
+      "DOS",
+      51
+    ],
+    [
+      "TU",
+      50
+    ],
+    [
+      "NO",
+      49
+    ],
+    [
+      "AHI",
+      43
+    ],
+    [
+      "QUE?",
+      41
+    ],
+    [
+      "YA",
+      39
+    ],
+    [
+      "MAMA",
+      39
+    ],
+    [
+      "LUEGO",
+      38
+    ],
+    [
+      "SI",
+      35
+    ],
+    [
+      "CASA",
+      34
+    ],
+    [
+      "EL",
+      33
+    ],
+    [
+      "MEJOR",
+      31
+    ],
+    [
+      "ESE",
+      30
+    ],
+    [
+      "OTRA_VEZ",
+      30
+    ],
+    [
+      "CASAR",
+      28
+    ],
+    [
+      "OTRO",
+      25
+    ],
+    [
+      "PUES",
+      25
+    ],
+    [
+      "ADIVINA",
+      24
+    ],
+    [
+      "PREGUNTAR",
+      23
+    ],
+    [
+      "ENTRAR",
+      22
+    ],
+    [
+      "ELLA",
+      22
+    ],
+    [
+      "FRIO",
+      22
+    ],
+    [
+      "SE_FUE",
+      22
+    ],
+    [
+      "QUE",
+      21
+    ],
+    [
+      "DONDE",
+      19
+    ]
+  ],
+  "limitation": "Exact textual annotation matches only; not isolated validated samples or class correctness."
+}

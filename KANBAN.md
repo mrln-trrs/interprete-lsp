@@ -88,6 +88,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | DAT-04 | Done para política y fuentes abiertas; nuevas grabaciones requieren consentimiento | [Gobierno y límites](docs/execution/DAT-04.md) |
 | DAT-01 | Done: capturador/persistencia; sin abrir cámara o recolectar corpus | [Inicio y tres pruebas](docs/execution/DAT-01.md) |
 | DAT-02 | Done: loader seguro y split por persona; corpus real pendiente | [Inicio y tres pruebas](docs/execution/DAT-02.md) |
+| DAT-03 | Parcial: corpus abierto inspeccionado, cobertura/cuotas insuficientes | [Conteos y límites](docs/execution/DAT-03.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 
