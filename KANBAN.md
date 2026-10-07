@@ -98,6 +98,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | UX-01 | Parcial: siete estados/controles implementados; navegador rechazado por política | [Flujos y límites](docs/execution/UX-01.md) |
 | AUD-01 | Parcial: voz local opt-in implementada; reproducción/browser pendiente | [Alcance y límites](docs/execution/AUD-01.md) |
 | HW-01 | Diferido por instrucción del usuario: Arduino futuro opcional | [Deuda HW-DEBT-01](docs/TECHNICAL-DEBT.md) |
+| QA-01 | Parcial: 42 PASS / 1 SKIP, integración real de visión; CI pendiente | [Evidencia y límites](docs/execution/QA-01.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

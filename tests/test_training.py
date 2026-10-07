@@ -2,7 +2,7 @@ import tempfile
 import unittest
 import numpy as np
 from src.training.train import classification_metrics, prepare_training
-from test_dataset import TestDataset
+import test_dataset
 
 
 class TestTraining(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestTraining(unittest.TestCase):
 
     def test_dry_run_never_reports_training_metrics(self):
         with tempfile.TemporaryDirectory() as folder:
-            TestDataset().create(folder, True)
+            test_dataset.TestDataset().create(folder, True)
             _, _, plan = prepare_training(folder, True)
             self.assertIsNone(plan["metrics"])
             self.assertFalse(plan["minimum_30_per_class"])

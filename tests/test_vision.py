@@ -39,7 +39,7 @@ class TestVisionModule(unittest.TestCase):
 
     def test_normalization_dummy_hand(self):
         # Simular una mano con 21 puntos
-        dummy_hand = np.random.rand(21, 3).astype(np.float32) * 100.0
+        dummy_hand = np.random.default_rng(42).random((21, 3)).astype(np.float32) * 100.0
         norm_hand = normalize_hand_landmarks(dummy_hand)
         
         # La muñeca (índice 0) debe ser exactamente (0, 0, 0)
