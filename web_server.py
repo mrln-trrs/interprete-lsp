@@ -16,6 +16,7 @@ import sys
 import argparse
 import base64
 import threading
+import os
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -28,6 +29,7 @@ import numpy as np
 from flask import Flask, Response, render_template_string, jsonify, request
 
 import config.settings as settings
+from src.backend.frame_api import ApiError, register_frame_api
 
 app = Flask(__name__)
 
@@ -531,6 +533,31 @@ def process_frame():
 # ══════════════════════════════════════════════════════════════════════════════
 # MAIN
 # ══════════════════════════════════════════════════════════════════════════════
+def process_v1_jpeg(image_bytes):
+    if _detector is None:
+        raise ApiError(503, "DETECTOR_UNAVAILABLE", "El detector no está disponible.")
+    image = cv2.imdecode(np.frombuffer(image_bytes, np.uint8), cv2.IMREAD_COLOR)
+    if image is None:
+        raise ApiError(400, "INVALID_FRAME", "No se pudo decodificar el JPEG.")
+    if image.shape[1] > 1280 or image.shape[0] > 720:
+        raise ApiError(413, "IMAGE_TOO_LARGE", "La imagen excede el límite permitido.")
+    with _detector_lock:
+        results = _detector.process(image)
+        annotated = _detector.draw(image.copy(), results)
+        hands = [{"side": item["label"], "confidence": item["confidence"] / 100}
+                 for item in _detector.meta(results)]
+        keypoints = _detector.keypoints(results)
+    encoded, buffer = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 78])
+    if not encoded:
+        raise RuntimeError("JPEG encoding failed")
+    return {"frame": "data:image/jpeg;base64," + base64.b64encode(buffer).decode(),
+            "hands": hands, "keypoints": keypoints}
+
+
+# Closed until SEC-10 wires authorized sessions. Legacy migration is a separate task.
+register_frame_api(app, process_v1_jpeg)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=5000)
