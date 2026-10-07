@@ -8,7 +8,9 @@ HARNESS = r"""
 window.requestAnimationFrame = () => 0;
 let fixtureStopped = 0;
 Object.defineProperty(navigator, 'mediaDevices', {configurable:true, value:{
-  getUserMedia: async () => ({getTracks: () => [{stop: () => fixtureStopped++}]})
+  getUserMedia: async () => Object.assign(new MediaStream(), {
+    getTracks: () => [{stop: () => fixtureStopped++}]
+  })
 }});
 let fixtureFetches = [];
 window.fetch = async (url, options={}) => {
