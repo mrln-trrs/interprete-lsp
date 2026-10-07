@@ -64,6 +64,19 @@ class TestSessions(unittest.TestCase):
         finally:
             self.manager.lock.release()
 
+    def test_clear_replaces_pipeline_without_reusing_frame_ids(self):
+        self.manager.session_factory = lambda: {"confirmed": "", "pending": []}
+        token = self.create()
+        self.frame(token, 1)
+        previous = self.manager.session["pipeline"]
+        previous["confirmed"] = "Hello fixture"
+        headers = {**self.headers, "Authorization": "Bearer " + token}
+        response = self.client.post("/api/v1/sessions/" + token + "/clear", json={}, headers=headers)
+        self.assertEqual(response.status_code, 204)
+        self.assertIsNot(self.manager.session["pipeline"], previous)
+        self.assertEqual(self.manager.session["pipeline"]["confirmed"], "")
+        self.assertEqual(self.frame(token, 1).status_code, 409)
+
     def test_missing_configuration_fails_closed(self):
         self.manager.access_key = None
         self.assertEqual(self.client.post("/api/v1/sessions", json={}, headers=self.headers).status_code, 503)

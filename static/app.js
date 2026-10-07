@@ -37,6 +37,42 @@ let generation = 0;
 let starting = false;
 let inFlight = null;
 const statusText = document.getElementById('status');
+const STATES = new Set(['Idle','Loading','Success','Empty','Error','Partial','Offline']);
+function setState(state, message) {
+  if (!STATES.has(state)) throw new Error('Estado desconocido');
+  document.body.dataset.state = state;
+  if (statusText.textContent !== message) statusText.textContent = message;
+}
+setState('Idle', 'Preparado para iniciar');
+document.getElementById('preflight').textContent =
+  'Cámara: ' + (navigator.mediaDevices?.getUserMedia ? 'requiere permiso' : 'no disponible') +
+  ' · Modelo: ' + (document.body.dataset.modelReady === 'true' ? 'exploratorio' : 'no disponible') +
+  ' · Arduino: futuro opcional';
+
+async function clearText() {
+  if (sessionId) {
+    try {
+      const response = await fetch('/api/v1/sessions/' + sessionId + '/clear', {
+        method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + sessionId},
+        body:'{}', signal:AbortSignal.timeout(3000)
+      });
+      if (!response.ok) { setState('Partial', 'No se pudo limpiar; vuelve a intentar'); return; }
+    } catch(e) { setState('Offline', 'No se pudo conectar para limpiar'); return; }
+  }
+  document.getElementById('confirmed-text').textContent = '—';
+  document.getElementById('pending-glosses').textContent = '—';
+  document.getElementById('candidate').textContent = '—';
+  document.getElementById('history').replaceChildren();
+  setState(stream ? 'Empty' : 'Idle', 'Salida limpiada');
+}
+document.getElementById('btn-clear').addEventListener('click', clearText);
+window.addEventListener('keydown', event => {
+  const editing = ['INPUT','TEXTAREA','SELECT'].includes(event.target.tagName) || event.target.isContentEditable;
+  if (editing) return;
+  if (event.key === 'Escape') { event.preventDefault(); stopCamera(); }
+  if (event.altKey && event.key.toLowerCase() === 'i') { event.preventDefault(); stream ? stopCamera() : startCamera(); }
+  if (event.altKey && event.key.toLowerCase() === 'l') { event.preventDefault(); clearText(); }
+});
 
 async function stopCamera() {
   generation++;
@@ -49,7 +85,9 @@ async function stopCamera() {
   overlay.style.display = 'flex';
   livePill.style.display = 'none';
   btnFlip.style.display = 'none';
-  statusText.textContent = 'Cámara detenida';
+  setState('Idle', 'Cámara detenida');
+  document.getElementById('candidate').textContent = '—';
+  document.getElementById('pending-glosses').textContent = '—';
   if (closingSession) {
     try { await fetch('/api/v1/sessions/' + closingSession, {
       method:'DELETE', headers:{Authorization:'Bearer ' + closingSession},
@@ -64,6 +102,8 @@ window.addEventListener('pagehide', stopCamera);
 async function startCamera() {
   if (starting || stream) return;
   starting = true;
+  btnStart.disabled = true;
+  setState('Loading', 'Autorizando sesión y preparando cámara');
   const openingGeneration = ++generation;
   try {
     if (!sessionId) {
@@ -90,13 +130,15 @@ async function startCamera() {
     btnFlip.style.display  = 'flex';
     livePill.style.display = 'flex';
     latBadge.style.display = 'block';
-    statusText.textContent = 'Detectando manos';
+    setState('Success', 'Detectando manos');
     requestAnimationFrame(() => loop(openingGeneration));
   } catch(e) {
     await stopCamera();
-    statusText.textContent = e.message;
+    setState('Error', 'No se pudo iniciar. Revisa la clave y el permiso de cámara.');
   } finally {
     starting = false;
+    btnStart.disabled = false;
+    if (!stream) btnStart.focus();
   }
 }
 btnStart.addEventListener('click', startCamera);
@@ -124,27 +166,29 @@ function loop(loopGeneration) {
 async function send() {
   sending = true;
   const t0 = Date.now();
+  const sendingGeneration = generation;
+  const controller = new AbortController();
+  inFlight = controller;
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  try {
   const vw = video.videoWidth  || 640;
   const vh = video.videoHeight || 480;
-  const sc = Math.min(1, MAX_W / vw);
+  const sc = Math.min(1, MAX_W / vw, 720 / vh);
   capCanvas.width  = Math.round(vw * sc);
   capCanvas.height = Math.round(vh * sc);
   capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
   const dataUrl = capCanvas.toDataURL('image/jpeg', JPEG_Q);
-  const sendingGeneration = generation;
-  inFlight = new AbortController();
-  const timeout = setTimeout(() => inFlight?.abort(), 3000);
-  try {
     const r = await fetch('/api/v1/process-frame', {
       method:'POST',
       headers:{'Content-Type':'application/json', Authorization:'Bearer ' + sessionId},
       body: JSON.stringify({ frame: dataUrl, session_id:sessionId,
         frame_id:frameId++, captured_at_ms:performance.now() - sessionStart }),
-      signal:inFlight.signal
+      signal:controller.signal
     });
     if (!r.ok) {
-      statusText.textContent = 'Procesamiento no disponible; detén y vuelve a iniciar';
-      if ([401,403,503].includes(r.status)) await stopCamera();
+      if ([401,403].includes(r.status)) { await stopCamera(); setState('Error', 'Sesión no disponible; vuelve a iniciar'); }
+      else if ([429,503].includes(r.status)) { setState('Partial', 'Procesador ocupado; pausa breve'); lastSend = Date.now() + 1000; }
+      else { setState('Error', 'No se pudo procesar el frame'); }
       return;
     }
     const d = (await r.json()).data;
@@ -152,6 +196,18 @@ async function send() {
     document.getElementById('pending-glosses').textContent = (d.pending_glosses || []).join(' · ') || '—';
     document.getElementById('confirmed-text').textContent = d.confirmed_text || '—';
     document.getElementById('model-state').textContent = d.model_available ? 'Modelo exploratorio; revisión lingüística pendiente' : 'Demo de manos: modelo no disponible';
+    document.getElementById('candidate').textContent = d.prediction ?
+      d.prediction.gloss + ' · ' + Math.round(d.prediction.confidence * 100) + '% · ' + d.prediction.stable_frames + '/10' : '—';
+    if (d.translation?.text) {
+      const item = document.createElement('li'); item.textContent = d.translation.text;
+      const history = document.getElementById('history'); history.appendChild(item);
+      while (history.children.length > 10) history.firstChild.remove();
+    }
+    if (!d.hands.length) setState('Empty', 'No se detectan manos');
+    else if (!d.model_available) setState('Partial', 'Manos detectadas; reconocimiento pendiente de modelo');
+    else if (d.translation?.status === 'Partial') setState('Partial', 'Sin plantilla disponible para estas glosas');
+    else if (d.prediction?.status === 'accepted') setState('Success', 'Glosa confirmada');
+    else setState('Partial', 'Esperando una predicción estable');
     d.manos = d.hands.map(h => ({label:h.side,
       label_es:h.side === 'Left' ? 'Izquierda' : 'Derecha', confidence:Math.round(h.confidence * 100)}));
     const lat = Date.now() - t0;
@@ -164,8 +220,8 @@ async function send() {
     latVal.textContent = lat;
     renderHands(d.manos||[]);
     renderKP(kp);
-  } catch(e){ if (sendingGeneration === generation) statusText.textContent = 'Conexión interrumpida'; }
-  finally{ clearTimeout(timeout); inFlight = null; sending=false; }
+  } catch(e){ if (sendingGeneration === generation) { await stopCamera(); setState('Offline', 'Conexión interrumpida; vuelve a iniciar cuando esté disponible'); } }
+  finally{ clearTimeout(timeout); if (inFlight === controller) inFlight = null; sending=false; }
 }
 
 // ── Render manos ──────────────────────────────────────────────────────────

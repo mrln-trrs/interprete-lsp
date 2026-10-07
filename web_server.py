@@ -119,7 +119,7 @@ _HTML = """<!DOCTYPE html>
 <title>LSP — Detección de Manos</title>
 <link rel="stylesheet" href="/static/styles.css"/>
 </head>
-<body>
+<body data-state="Idle" data-model-ready="{{ 'true' if model_ready else 'false' }}">
 
 <header>
   <div class="logo">🤟</div>
@@ -138,10 +138,10 @@ _HTML = """<!DOCTYPE html>
   <video id="local-video" playsinline autoplay muted style="display:none"></video>
   <img id="processed-img"
     src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="
-    alt=""/>
+    alt="Vista de la cámara con puntos de manos detectados"/>
 
   <div id="lat-badge">Latencia: <span id="lat-val">—</span> ms</div>
-  <button id="btn-flip" title="Cambiar cámara">🔄</button>
+  <button id="btn-flip" title="Cambiar cámara" aria-label="Cambiar cámara">🔄</button>
 
   <div id="overlay">
     <div class="emoji">🤟</div>
@@ -156,13 +156,19 @@ _HTML = """<!DOCTYPE html>
 
 <!-- PANEL INFERIOR -->
 <div class="bottom">
-  <button id="btn-stop" type="button">Detener cámara</button>
+  <div class="actions">
+    <button id="btn-stop" type="button">Detener cámara</button>
+    <button id="btn-clear" type="button">Limpiar texto</button>
+  </div>
+  <p id="preflight">Cámara: requiere permiso · Modelo: pendiente · Arduino: futuro opcional</p>
   <p id="status" role="status" aria-live="polite">Preparado para iniciar</p>
-  <section aria-label="Salida de traducción">
+  <section class="output" aria-label="Salida de traducción">
+    <p>Candidato: <span id="candidate">—</span></p>
     <p>Glosas pendientes: <span id="pending-glosses">—</span></p>
     <p>Texto confirmado: <span id="confirmed-text">—</span></p>
     <p id="model-state">Reconocimiento pendiente: modelo no disponible</p>
   </section>
+  <ol id="history" class="history" aria-label="Historial de texto confirmado"></ol>
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat"><div class="stat-v" id="s-fps">—</div><div class="stat-l">FPS</div></div>
@@ -191,7 +197,7 @@ _HTML = """<!DOCTYPE html>
 # ══════════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def index():
-    return render_template_string(_HTML)
+    return render_template_string(_HTML, model_ready=_predictor is not None)
 
 
 @app.route("/process_frame", methods=["POST"])

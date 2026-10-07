@@ -95,6 +95,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | LOG-01 | Parcial: reglas Python probadas; paridad/runtime Prolog pendiente | [Reglas y límites](docs/execution/LOG-01.md) |
 | NLP-01 | Done para plantillas exploratorias y pipeline; asesor/modelo real pendientes | [Inicio y pruebas](docs/execution/NLP-01.md) |
 | DS-01 | Parcial: tokens/layout y contraste ≥7:1; CLS/browser pendiente | [Cambios y medición](docs/execution/DS-01.md) |
+| UX-01 | Parcial: siete estados/controles implementados; navegador rechazado por política | [Flujos y límites](docs/execution/UX-01.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

@@ -101,6 +101,12 @@ class SessionManager:
             self.authorized_session(session_id)
             self.session = None
 
+    def clear(self, session_id):
+        self.check_origin()
+        with self.exclusive():
+            session = self.authorized_session(session_id)
+            session["pipeline"] = self.session_factory() if self.session_factory else None
+
 
 def register_sessions(app, manager):
     @app.before_request
@@ -116,6 +122,13 @@ def register_sessions(app, manager):
     @app.delete("/api/v1/sessions/<session_id>")
     def delete_session(session_id):
         manager.delete(session_id)
+        return "", 204
+
+    @app.post("/api/v1/sessions/<session_id>/clear")
+    def clear_session(session_id):
+        if strict_json_request():
+            raise ApiError(400, "INVALID_FIELDS", "Limpiar la sesión no requiere campos.")
+        manager.clear(session_id)
         return "", 204
 
     @app.after_request
