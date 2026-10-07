@@ -1,0 +1,15 @@
+{
+  "version": "wave-hola-rules-v1",
+  "kind": "geometric_rule",
+  "gloss": "HOLA",
+  "window_ms": 2200,
+  "max_gap_ms": 500,
+  "min_duration_ms": 450,
+  "min_swing": 0.045,
+  "min_range": 0.12,
+  "max_vertical_range": 0.22,
+  "reversals": 2,
+  "hold_ms": 1600,
+  "rearm_ms": 900,
+  "note": "Saludo experimental con mano abierta; no es un modelo entrenado de LSP ni una probabilidad calibrada."
+}

@@ -35,6 +35,7 @@ from src.backend.frame_api import ApiError, register_frame_api
 from src.backend.sessions import SessionManager, register_sessions
 from src.inference.engine import InferenceEngine, load_predictor
 from src.inference.pipeline import TranslationPipeline
+from src.inference.wave import WaveGreetingEngine
 
 app = Flask(__name__)
 
@@ -119,7 +120,7 @@ _HTML = """<!DOCTYPE html>
 <title>LSP — Detección de Manos</title>
 <link rel="stylesheet" href="/static/styles.css"/>
 </head>
-<body data-state="Idle" data-model-ready="{{ 'true' if model_ready else 'false' }}">
+<body data-state="Idle" data-model-ready="{{ 'true' if model_ready else 'false' }}" data-gesture-demo="{{ 'true' if gesture_demo else 'false' }}">
 
 <header>
   <div class="logo">🤟</div>
@@ -159,7 +160,8 @@ _HTML = """<!DOCTYPE html>
   <div class="actions">
     <button id="btn-stop" type="button">Detener cámara</button>
     <button id="btn-clear" type="button">Limpiar texto</button>
-    <label><input id="voice-enabled" type="checkbox"/> Leer texto confirmado</label>
+    <label><input id="voice-enabled" type="checkbox" {{ 'checked' if gesture_demo else '' }}/> Leer texto confirmado</label>
+    <button id="btn-test-voice" type="button">Probar voz: Hola</button>
   </div>
   <p id="preflight">Cámara: requiere permiso · Modelo: pendiente · Arduino: futuro opcional</p>
   <p id="voice-state">Voz desactivada</p>
@@ -168,7 +170,7 @@ _HTML = """<!DOCTYPE html>
     <p>Candidato: <span id="candidate">—</span></p>
     <p>Glosas pendientes: <span id="pending-glosses">—</span></p>
     <p>Texto confirmado: <span id="confirmed-text">—</span></p>
-    <p id="model-state">Reconocimiento pendiente: modelo no disponible</p>
+    <p id="model-state">{{ 'Saludo experimental: abre la mano y agítala de lado a lado 2–3 veces. Baja la mano un segundo para repetir.' if gesture_demo else 'Reconocimiento pendiente: modelo no disponible' }}</p>
   </section>
   <ol id="history" class="history" aria-label="Historial de texto confirmado"></ol>
   <!-- Stats -->
@@ -199,7 +201,7 @@ _HTML = """<!DOCTYPE html>
 # ══════════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def index():
-    return render_template_string(_HTML, model_ready=_predictor is not None)
+    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo, gesture_demo=_gesture_demo)
 
 
 @app.route("/process_frame", methods=["POST"])
@@ -232,9 +234,10 @@ def process_v1_jpeg(image_bytes):
 
 
 _predictor, _model_version = None, None
+_gesture_demo = False
 _sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
     os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","),
-    session_factory=lambda: TranslationPipeline(InferenceEngine(_predictor, _model_version)))
+    session_factory=lambda: TranslationPipeline(WaveGreetingEngine() if _gesture_demo else InferenceEngine(_predictor, _model_version)))
 
 
 def enrich_features(frame, result, session):
@@ -250,7 +253,11 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--model-dir", type=Path, default=None, help="Artefactos locales de procedencia aprobada")
+    parser.add_argument("--gesture-demo", action="store_true", help="Regla experimental: agitar mano abierta → Hola")
     args = parser.parse_args()
+    if args.gesture_demo and args.model_dir:
+        parser.error("Elija --gesture-demo o --model-dir")
+    _gesture_demo = args.gesture_demo
     if args.model_dir:
         _predictor, _model_version = load_predictor(args.model_dir)
     if not _sessions.access_key or len(_sessions.access_key) < 32:

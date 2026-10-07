@@ -38,6 +38,10 @@ La API usa `POST /api/v1/sessions`, `POST /api/v1/process-frame`, limpieza y cie
 
 ## Datos y entrenamiento
 
+### Prueba básica: agitar la mano → Hola + voz
+
+Inicia la demo con `python web_server.py --host 127.0.0.1 --port 5000 --gesture-demo` y la misma configuración de clave. Pulsa **Probar voz: Hola** o inicia la cámara con **Leer texto confirmado** activado. Presenta la palma abierta y agítala horizontalmente 2–3 veces durante unos dos segundos. Baja la mano un segundo para repetir. Este modo usa un [modelo de reglas gestuales](models/gestures/wave_hola.json), independiente del futuro clasificador LSP entrenado; no mide precisión lingüística. Consulta [DEMO-01](docs/execution/DEMO-01.md).
+
 ```bash
 python -m src.dataset.record_samples --gloss HOLA --participant participante-01 --consent-ref consentimiento-local --samples 30
 python -m src.training.train --dry-run

@@ -101,6 +101,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | QA-01 | Parcial de aceptación: CI Linux PASS, 43 tests; Windows 42 PASS / 1 SKIP | [Evidencia y límites](docs/execution/QA-01.md) |
 
 | REL-01 | Done como evaluación del gate: NO APTO para liberar; bloqueos explícitos | [Dictamen y evidencia](docs/execution/REL-01.md) |
+| DEMO-01 | Done para software: saludo geométrico HOLA y TTS, 6 tests nuevos; prueba física del usuario pendiente | [Inicio, alcance y límites](docs/execution/DEMO-01.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

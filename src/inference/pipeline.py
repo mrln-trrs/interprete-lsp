@@ -15,7 +15,8 @@ class TranslationPipeline:
         if decision["gloss"]:
             self.buffer.append(decision["gloss"], timestamp_ms)
         translation = None
-        if self.buffer.glosses and (decision["status"] == "rest" or self.buffer.due(timestamp_ms)):
+        if self.buffer.glosses and (decision["status"] == "rest" or self.buffer.due(timestamp_ms)
+                                  or (decision["gloss"] and getattr(self.engine, "immediate_translation", False))):
             translation = self.buffer.flush()
             if translation["text"]:
                 self.confirmed_text = translation["text"]

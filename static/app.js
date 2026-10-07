@@ -40,18 +40,25 @@ const statusText = document.getElementById('status');
 const STATES = new Set(['Idle','Loading','Success','Empty','Error','Partial','Offline']);
 const voiceEnabled = document.getElementById('voice-enabled');
 const voiceState = document.getElementById('voice-state');
+const gestureDemo = document.body.dataset.gestureDemo === 'true';
 function speakConfirmed(text) {
   if (!voiceEnabled.checked || !text) return;
   const synthesis = window.speechSynthesis;
-  const voice = synthesis?.getVoices().find(candidate => candidate.localService && candidate.lang.toLowerCase().startsWith('es'));
-  if (!voice) { voiceState.textContent = 'No hay voz local en español disponible; el texto se conserva'; return; }
+  const voices = synthesis?.getVoices().filter(candidate => candidate.localService) || [];
+  const voice = voices.find(candidate => candidate.lang.toLowerCase().startsWith('es')) || voices[0];
+  if (!voice) { voiceState.textContent = 'No hay voz local disponible todavía; pulsa Probar voz de nuevo'; return; }
   synthesis.cancel(); // Bound the audio queue to the most recent confirmed sentence.
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = voice; utterance.lang = voice.lang;
+  utterance.voice = voice; utterance.lang = voice.lang; utterance.rate = 0.9;
   utterance.onerror = () => { voiceState.textContent = 'La voz falló; el texto se conserva'; };
   synthesis.speak(utterance);
-  voiceState.textContent = 'Voz local activada';
+  voiceState.textContent = voice.lang.toLowerCase().startsWith('es') ? 'Voz local en español activada' : 'Voz local disponible; instala una voz española para mejorar la pronunciación';
 }
+window.speechSynthesis?.getVoices(); // Start asynchronous OS voice discovery.
+document.getElementById('btn-test-voice').addEventListener('click', () => {
+  voiceEnabled.checked = true;
+  speakConfirmed('Hola');
+});
 voiceEnabled.addEventListener('change', () => {
   if (!voiceEnabled.checked) window.speechSynthesis?.cancel();
   voiceState.textContent = voiceEnabled.checked ? 'Voz activada para nuevas frases confirmadas' : 'Voz desactivada';
@@ -64,7 +71,7 @@ function setState(state, message) {
 setState('Idle', 'Preparado para iniciar');
 document.getElementById('preflight').textContent =
   'Cámara: ' + (navigator.mediaDevices?.getUserMedia ? 'requiere permiso' : 'no disponible') +
-  ' · Modelo: ' + (document.body.dataset.modelReady === 'true' ? 'exploratorio' : 'no disponible') +
+  ' · Modelo: ' + (gestureDemo ? 'regla experimental de saludo' : document.body.dataset.modelReady === 'true' ? 'exploratorio' : 'no disponible') +
   ' · Arduino: futuro opcional';
 
 async function clearText() {
@@ -121,6 +128,7 @@ window.addEventListener('pagehide', stopCamera);
 // ── Activar cámara ──────────────────────────────────────────────────────────
 async function startCamera() {
   if (starting || stream) return;
+  if (gestureDemo && voiceEnabled.checked) speakConfirmed('Voz activada');
   starting = true;
   btnStart.disabled = true;
   setState('Loading', 'Autorizando sesión y preparando cámara');
@@ -215,9 +223,9 @@ async function send() {
     if (sendingGeneration !== generation) return;
     document.getElementById('pending-glosses').textContent = (d.pending_glosses || []).join(' · ') || '—';
     document.getElementById('confirmed-text').textContent = d.confirmed_text || '—';
-    document.getElementById('model-state').textContent = d.model_available ? 'Modelo exploratorio; revisión lingüística pendiente' : 'Demo de manos: modelo no disponible';
+    document.getElementById('model-state').textContent = gestureDemo ? 'Abre la mano y agítala de lado a lado 2–3 veces. Baja la mano un segundo para repetir. Regla experimental.' : d.model_available ? 'Modelo exploratorio; revisión lingüística pendiente' : 'Demo de manos: modelo no disponible';
     document.getElementById('candidate').textContent = d.prediction ?
-      d.prediction.gloss + ' · ' + Math.round(d.prediction.confidence * 100) + '% · ' + d.prediction.stable_frames + '/10' : '—';
+      d.prediction.gloss + ' · ' + (d.prediction.confidence_kind === 'rule_match' ? 'patrón gestual' : Math.round(d.prediction.confidence * 100) + '%') + ' · ' + d.prediction.stable_frames + '/10' : '—';
     if (d.translation?.text) {
       speakConfirmed(d.translation.text);
       const item = document.createElement('li'); item.textContent = d.translation.text;
