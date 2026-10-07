@@ -7,7 +7,13 @@
 [![Flask](https://img.shields.io/badge/Flask-3.x-lightgrey.svg)](https://flask.palletsprojects.com)
 [![Status](https://img.shields.io/badge/Status-En%20Desarrollo-yellow.svg)](KANBAN.md)
 
-Sistema de traduccion e interpretacion bidireccional en tiempo real para la **Lengua de Senas Peruana (LSP)**. Combina vision por computadora con **MediaPipe**, redes neuronales recurrentes (**LSTM / GRU**), procesamiento de lenguaje natural (**PLN**) y retroalimentacion fisica mediante **Arduino**.
+Prototipo académico para reconocer un vocabulario cerrado de **Lengua de Señas Peruana (LSP)** y producir texto en español. Actualmente implementa detección de manos y una demo web; captura de dataset, entrenamiento, traducción, lógica Prolog y control serial siguen pendientes. LSTM/GRU, PLN, voz y Arduino forman parte de la arquitectura objetivo.
+
+## Planeación vigente — 6 de octubre de 2026
+
+El [plan maestro](docs/PLAN-INTERPRETE-LSP.md) adapta las once fases de los [prompts maestros](<Prompts Maestros Integrales del Proyecto LSP.md>) al estado real del repositorio. Define alcance, decisiones, criterios VAL-01 a VAL-05, seguridad, contratos, UX, datos, entrenamiento, reglas, serial y pruebas. El [Kanban](KANBAN.md) distingue documentación, implementación y verificación; la [auditoría inicial](docs/quality/ISO-25010-AUDIT-REPORT.md) mantiene el gate de release pendiente.
+
+El MVP es unidireccional LSP → glosas → español por plantillas revisadas. No existe todavía un intérprete completo ni traducción bidireccional. Los módulos dataset, training, nlp y el host serial son archivos de estructura con docstrings. No se puede grabar o entrenar ejecutándolos en su estado actual.
 
 Desarrollado como producto formativo de la asignatura de Inteligencia Artificial, Escuela Profesional de Ingenieria de Sistemas, Universidad Privada San Juan Bautista, Lima, Peru, 2026.
 
@@ -166,6 +172,7 @@ ngrok http 5000
 ```
 
 Compartir el link `https://xxxx.ngrok-free.app` generado. Cada usuario abre la URL en su dispositivo, activa su camara y observa sus propias manos detectadas en tiempo real por MediaPipe.
+La exposición remota queda condicionada a los controles del [modelo STRIDE](docs/security/STRIDE-THREAT-MODEL.md): autorización, límites, errores seguros y aislamiento. El servidor actual es de desarrollo y no incorpora todos esos controles; estas instrucciones describen la demo histórica, sin acreditar seguridad de un despliegue público. Para revisión local puede usarse `python web_server.py --host 127.0.0.1`.
 
 Configuracion de ngrok (solo la primera vez):
 ```powershell
@@ -246,5 +253,6 @@ ngrok config add-authtoken TU_TOKEN   # se guarda en AppData/Local/ngrok/ngrok.y
 ## Colaboracion y Ramas
 
 Consultar [CONTRIBUTING.md](CONTRIBUTING.md) para el flujo de trabajo en Git y [KANBAN.md](KANBAN.md) para las tareas asignadas a cada modulo.
+Los nuevos cambios funcionales siguen el gate de revisión del plan; las pruebas de visión existentes no sustituyen aceptación del modelo, seguridad o accesibilidad.
 
 Para el contexto academico y justificacion formal del proyecto consultar [article.md](article.md).

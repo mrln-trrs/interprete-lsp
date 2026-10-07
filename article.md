@@ -72,8 +72,8 @@ flowchart TD
 
 ### Componentes
 
-- **Modulo de Percepcion (`src/vision/detector.py`):** Encapsula el detector MediaPipe Hands para localizar manos en el cuadro de video y obtener las coordenadas relativas de 21 articulaciones por extremidad ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)).
-- **Modulo de Normalizacion (`src/vision/normalizer.py`):** Transforma la geometria cruda en coordenadas invariantes a escala y traslacion espacial.
+- **Modulo de Percepcion (`src/vision/mediapipe_detector.py`):** Encapsula el detector MediaPipe Hands para localizar manos en el cuadro de video y obtener las coordenadas relativas de 21 articulaciones por extremidad ([Zhang et al., 2020](https://doi.org/10.48550/arXiv.2006.10214)).
+- **Modulo de Normalizacion (`src/vision/normalization.py`):** Transforma la geometria cruda en coordenadas invariantes a escala y traslacion espacial.
 - **Buffer Temporal:** Memoria de tipo cola circular que acumula las ultimas 30 muestras temporales, equivalentes a aproximadamente un segundo de movimiento continuo.
 - **Clasificador Recurrente (`src/training/model_builder.py`):** Red profunda con capas LSTM/GRU que aprende patrones de trayectoria y transicion entre articulaciones ([Ananthanarayana et al., 2021](https://doi.org/10.1145/3477498)).
 - **Supervisión Logica en Prolog:** Modulo basado en conocimiento que aplica reglas deterministas sobre la confianza y duracion del gesto, impidiendo que parpadeos visuales activen predicciones espurias ([Clocksin y Mellish, 2003](https://doi.org/10.1007/978-3-642-55481-0)).
@@ -270,17 +270,19 @@ La Lengua de Senas Peruana presenta una estructura sintactica diferente al espan
 
 ## 05 — Estado
 
+**Actualización de planeación: 6 de octubre de 2026.** El estado operativo vigente se documenta en el [plan maestro](docs/PLAN-INTERPRETE-LSP.md) y el [Kanban](KANBAN.md). La arquitectura de clasificación, Prolog y traducción descrita en este artículo es objetivo de desarrollo; no implica que esos subsistemas estén implementados. Las cifras y pruebas reseñadas son antecedentes históricos sin revalidación en esta revisión. La demo actual detecta manos; no acredita interpretación general ni bidireccional de LSP.
+
 ### Actual
 
-- Modulo de percepcion visual y extraccion de 126 caracteristicas culminado al 100%.
+- Módulo de percepción y extracción de 126 características con implementación presente; aceptación actual pendiente.
 - Normalizador espacial con invarianza de escala y centrado operativo.
-- Suite de pruebas unitarias automatizadas (`tests/test_vision.py`) superada.
-- Maqueta web remota desplegada mediante Flask + ngrok HTTPS con cliente movil funcional y preservacion estricta de la camara del servidor.
+- Cuatro pruebas unitarias presentes en `tests/test_vision.py`; resultados históricos no reejecutados en la revisión documental.
+- Maqueta web con cámara del cliente implementada; despliegue actual y seguridad de exposición remota pendientes de verificación.
 - Vocabulario inicial de 9 clases estructurado en `config/actions.py`.
 
 ### Siguiente
 
-- Culminar el script de grabacion sistematica de muestras (`src/data_collection/record_samples.py`) para capturar entre 30 y 50 repeticiones por cada una de las 9 glosas.
+- Implementar el capturador `src/dataset/record_samples.py` y el loader, actualmente stubs, después de consentimiento y validación del esquema; meta inicial de 30–50 secuencias por cada una de las nueve clases.
 - Entrenar y evaluar la red neuronal recurrente LSTM sobre el corpus generado.
 - Exponer el endpoint de prediccion continua en el servidor web para que la interfaz movil no solo muestre los keypoints, sino la oracion traducida en tiempo real.
 - Conectar la salida validada hacia el firmware de Arduino para despliegue en pantalla LCD fisica.
