@@ -1,0 +1,21 @@
+{
+  "surface": "#111827",
+  "tokens": {
+    "surface": "#111827",
+    "primary": "#FFFFFF",
+    "secondary": "#D1D5DB",
+    "accent": "#A7F3D0",
+    "accent-secondary": "#93C5FD",
+    "warning": "#FDE68A",
+    "danger": "#FECACA"
+  },
+  "contrast_ratios": {
+    "primary": 17.73971700407407,
+    "secondary": 12.039064392610866,
+    "accent": 13.832035869720533,
+    "accent-secondary": 9.83750053606076,
+    "warning": 14.244359786595233,
+    "danger": 12.261719107308613
+  },
+  "all_text_pairs_at_least_7": true
+}
