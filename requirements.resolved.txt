@@ -130,7 +130,7 @@ pandas==3.0.6
     # via seaborn
 pillow==12.3.0
     # via matplotlib
-protobuf==4.25.9
+protobuf==5.29.6
     # via
     #   mediapipe
     #   tensorboard
@@ -159,7 +159,7 @@ requests==2.34.2
     # via tensorflow-intel
 rich==15.0.0
     # via keras
-scikit-learn==1.5.2
+scikit-learn==1.9.1
     # via -r requirements.txt
 scipy==1.17.1
     # via
