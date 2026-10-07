@@ -1,9 +1,9 @@
-{
+﻿{
     "bomFormat":  "CycloneDX",
     "specVersion":  "1.5",
     "version":  1,
     "metadata":  {
-                     "timestamp":  "2026-10-07T02:08:42.5121365Z"
+                     "timestamp":  "2026-10-07T02:10:25.4919586Z"
                  },
     "components":  [
                        {
@@ -68,13 +68,6 @@
                            "version":  "3.1.2",
                            "purl":  "pkg:pypi/cloudpickle@3.1.2",
                            "bom-ref":  "pkg:pypi/cloudpickle@3.1.2"
-                       },
-                       {
-                           "type":  "library",
-                           "name":  "comtypes",
-                           "version":  "1.4.17",
-                           "purl":  "pkg:pypi/comtypes@1.4.17",
-                           "bom-ref":  "pkg:pypi/comtypes@1.4.17"
                        },
                        {
                            "type":  "library",
@@ -337,13 +330,6 @@
                        },
                        {
                            "type":  "library",
-                           "name":  "pypiwin32",
-                           "version":  "223",
-                           "purl":  "pkg:pypi/pypiwin32@223",
-                           "bom-ref":  "pkg:pypi/pypiwin32@223"
-                       },
-                       {
-                           "type":  "library",
                            "name":  "pyserial",
                            "version":  "3.5",
                            "purl":  "pkg:pypi/pyserial@3.5",
@@ -362,13 +348,6 @@
                            "version":  "2.90",
                            "purl":  "pkg:pypi/pyttsx3@2.90",
                            "bom-ref":  "pkg:pypi/pyttsx3@2.90"
-                       },
-                       {
-                           "type":  "library",
-                           "name":  "pywin32",
-                           "version":  "312",
-                           "purl":  "pkg:pypi/pywin32@312",
-                           "bom-ref":  "pkg:pypi/pywin32@312"
                        },
                        {
                            "type":  "library",
@@ -449,17 +428,10 @@
                        },
                        {
                            "type":  "library",
-                           "name":  "tensorflow-intel",
-                           "version":  "2.16.1",
-                           "purl":  "pkg:pypi/tensorflow-intel@2.16.1",
-                           "bom-ref":  "pkg:pypi/tensorflow-intel@2.16.1"
-                       },
-                       {
-                           "type":  "library",
                            "name":  "tensorflow-io-gcs-filesystem",
-                           "version":  "0.31.0",
-                           "purl":  "pkg:pypi/tensorflow-io-gcs-filesystem@0.31.0",
-                           "bom-ref":  "pkg:pypi/tensorflow-io-gcs-filesystem@0.31.0"
+                           "version":  "0.37.1",
+                           "purl":  "pkg:pypi/tensorflow-io-gcs-filesystem@0.37.1",
+                           "bom-ref":  "pkg:pypi/tensorflow-io-gcs-filesystem@0.37.1"
                        },
                        {
                            "type":  "library",
@@ -481,13 +453,6 @@
                            "version":  "4.16.0",
                            "purl":  "pkg:pypi/typing-extensions@4.16.0",
                            "bom-ref":  "pkg:pypi/typing-extensions@4.16.0"
-                       },
-                       {
-                           "type":  "library",
-                           "name":  "tzdata",
-                           "version":  "2026.5",
-                           "purl":  "pkg:pypi/tzdata@2026.5",
-                           "bom-ref":  "pkg:pypi/tzdata@2026.5"
                        },
                        {
                            "type":  "library",

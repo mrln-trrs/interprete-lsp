@@ -1,8 +1,8 @@
-{
-    "generated_at":  "2026-10-07T02:08:42.5121365Z",
+﻿{
+    "generated_at":  "2026-10-07T02:10:25.4919586Z",
     "source":  "https://pypi.org/pypi/{package}/{version}/json",
     "tool":  "scripts/audit_dependencies.ps1 (PyPI release advisory API; TLS verified by PowerShell)",
-    "requirements_sha256":  "83525ce89995d27c95c42f282b3aa4377ee2624a6fd6fbf622121b03f7c7843c",
+    "requirements_sha256":  "056ad62e041694971bdbd744cd47b95145a09ca91aa93304056b2cf80771f317",
     "dependencies":  [
                          {
                              "name":  "absl-py",
@@ -63,13 +63,6 @@
                          {
                              "name":  "cloudpickle",
                              "version":  "3.1.2",
-                             "vulnerabilities":  [
-
-                                                 ]
-                         },
-                         {
-                             "name":  "comtypes",
-                             "version":  "1.4.17",
                              "vulnerabilities":  [
 
                                                  ]
@@ -365,13 +358,6 @@
                                                  ]
                          },
                          {
-                             "name":  "pypiwin32",
-                             "version":  "223",
-                             "vulnerabilities":  [
-
-                                                 ]
-                         },
-                         {
                              "name":  "pyserial",
                              "version":  "3.5",
                              "vulnerabilities":  [
@@ -388,13 +374,6 @@
                          {
                              "name":  "pyttsx3",
                              "version":  "2.90",
-                             "vulnerabilities":  [
-
-                                                 ]
-                         },
-                         {
-                             "name":  "pywin32",
-                             "version":  "312",
                              "vulnerabilities":  [
 
                                                  ]
@@ -477,15 +456,8 @@
                                                  ]
                          },
                          {
-                             "name":  "tensorflow-intel",
-                             "version":  "2.16.1",
-                             "vulnerabilities":  [
-
-                                                 ]
-                         },
-                         {
                              "name":  "tensorflow-io-gcs-filesystem",
-                             "version":  "0.31.0",
+                             "version":  "0.37.1",
                              "vulnerabilities":  [
 
                                                  ]
@@ -507,13 +479,6 @@
                          {
                              "name":  "typing-extensions",
                              "version":  "4.16.0",
-                             "vulnerabilities":  [
-
-                                                 ]
-                         },
-                         {
-                             "name":  "tzdata",
-                             "version":  "2026.5",
                              "vulnerabilities":  [
 
                                                  ]

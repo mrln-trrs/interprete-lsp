@@ -1,6 +1,6 @@
 # Plan maestro del intérprete LSP
 
-Actualización: 2026-10-06. Versión documental: 1.0. Estado: planificación formalizada; validación técnica y revisión del equipo pendientes.
+Actualización: 2026-10-06. Versión documental: 1.1. Estado: ejecución autorizada y prototipo implementado; aceptación del MVP pendiente. [Ejecución vigente](../KANBAN.md) y [dictamen](quality/ISO-25010-AUDIT-REPORT.md) distinguen resultados probados y deuda.
 
 ## Visión, problema y resultado esperado
 
@@ -8,9 +8,9 @@ El prototipo académico busca reconocer un vocabulario cerrado de Lengua de Señ
 
 Usuarios: persona señante, operador de demostración, recolector de muestras y evaluador. Resultado del MVP: captura consentida, entrenamiento reproducible y reconocimiento de nueve clases con rechazo de incertidumbre. No sustituye a un intérprete profesional ni se destina a decisiones médicas, legales o de emergencia.
 
-## Inventario comprobado
+## Inventario comprobado inicial (antes de implementar)
 
-Inspección estática del repositorio realizada el 2026-10-06; las afirmaciones históricas del Kanban y artículo no equivalen a pruebas ejecutadas en esta revisión.
+Línea base histórica, conservada para trazabilidad; no describe el cierre actual. Inspección estática del repositorio realizada el 2026-10-06; las afirmaciones históricas del Kanban y artículo no equivalen a pruebas ejecutadas en esta revisión.
 
 | Área | Evidencia | Estado real |
 |---|---|---|

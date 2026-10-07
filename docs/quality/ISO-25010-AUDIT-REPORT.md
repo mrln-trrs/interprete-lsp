@@ -1,47 +1,34 @@
 # Auditoría de calidad y dictamen de liberación
 
-Fecha: 2026-10-06. Candidato: árbol de trabajo inspeccionado sobre HEAD `506d28c`; cambios documentales sin commit. Dictamen: **NO APTO para release del intérprete completo ni exposición pública sin controles**. La demo de detección existente no acredita reconocimiento de señas.
+Fecha: 2026-10-06. Candidato técnico: `e4880b7bab81d2d10b5824c385330d33041a8f2d`; cierre documental posterior en REL-01. Responsable de revisión técnica: Codex, bajo autorización del usuario. **Dictamen: NO APTO para liberar el intérprete completo ni exponerlo públicamente.** No constituye certificación ISO.
 
-Este es un informe inicial de brechas y un formato de auditoría futura, no certificación. El prompt menciona ocho características; se actualiza a las nueve del modelo de producto [ISO/IEC 25010:2023](https://www.iso.org/standard/78176.html), manteniendo orientación SQuaRE. No se ha evaluado el texto normativo completo.
+## Evidencia ejecutada
 
-| Característica | Evaluación requerida | Estado / brecha |
-|---|---|---|
-| Adecuación funcional | Nueve clases y frases revisadas, VAL-03 | Pendiente: no hay clasificador/PLN operativo |
-| Eficiencia de desempeño | FPS, p95, CPU/RAM y cola | Pendiente: cifras históricas sin reporte actual |
-| Compatibilidad | SO/runtime, navegador, esquema y serial | Pendiente: entorno y round-trip no verificados |
-| Capacidad de interacción | Teclado, foco, estados y accesibilidad | Pendiente: UI existente sin auditoría |
-| Fiabilidad | Desconexiones, recuperación y limpieza | Pendiente: pruebas integrales |
-| Seguridad | STRIDE, secretos, SCA y controles web | Pendiente: límites/autorización no observados |
-| Mantenibilidad | Modularidad, contratos, tests y trazabilidad | Parcial: estructura presente, varios stubs |
-| Flexibilidad | Configuración y adaptación de hardware/captura | Pendiente: validar perfiles sin cambiar fuente |
-| Safety (seguridad operacional) | Rechazo prudente, avisos y alcance no crítico | Pendiente: validación de falsas emisiones |
+[CI Linux/Python 3.11](https://github.com/mrln-trrs/interprete-lsp/actions/runs/37558676708) terminó con éxito sobre el candidato: suite de 43 tests, smoke nativo y contraste. Incluye LSTM/GRU compilados, probabilidades y guardado/carga de modelos de prueba sin entrenamiento lingüístico. Windows: 42 PASS y un SKIP por DLL optree bloqueada; SSL también está bloqueado. Integración real JPEG/OpenCV/MediaPipe/API probada sin abrir cámara. JavaScript validado sintácticamente; aceptación en navegador no ejecutada.
 
-## Test Summary Report inicial
+Secret scan del historial alcanzable actualizado sin coincidencias. SCA/SBOM consultan advisories de las 73 dependencias del perfil Windows: protobuf 4.25.9 mantiene CVE-2026-0994 alto. Sus versiones corregidas son incompatibles con restricciones actuales; no se fuerza el upgrade. SCA Linux actualizado: 68 dependencias consultadas, una afectada (protobuf), cero consultas fallidas. Ambos perfiles conservan el mismo bloqueo alto; informes Linux separados en docs/security/evidence/linux. Informes en `docs/security/evidence`; ausencia de hallazgos de secretos no equivale a ausencia de vulnerabilidades.
 
-Actualización de ejecución: cuatro tests de visión PASS; ENV-03 registra bloqueo de SSL/optree; SEC-09 ejecutó scan de secretos sin coincidencias en su alcance y SCA de 73 dependencias. Scikit-learn fue actualizado; protobuf mantiene un aviso alto abierto. Ver [SEC-09](../execution/SEC-09.md). Las notas siguientes preservan la línea base inicial y no reemplazan estos resultados fechados. El dictamen NO APTO continúa.
+## Evaluación del producto
 
-- Alcance de esta revisión: archivos y documentación; no ejecución del producto.
-- Suite localizada: cuatro pruebas en `tests/test_vision.py`, sin ejecución actual acreditada.
-- Entrenamiento/evaluación: no realizados; sin métricas de reconocimiento verificables.
-- Secret scan completo y SCA: no realizados; ausencia de vulnerabilidades no demostrada.
-- Hardware: firmware básico inspeccionado; sin placa, loopback o display probados.
-- Desviaciones críticas: subsistemas centrales no implementados; seguridad de exposición pública pendiente; dataset y test independiente no acreditados.
+| Característica | Evidencia y límite |
+|---|---|
+| Adecuación funcional | Pipeline y plantillas probados; sin corpus completo, modelo real ni métricas independientes |
+| Eficiencia | Una petición por cliente y cuotas; FPS/latencia real NOT_RUN |
+| Compatibilidad | Linux nativo PASS; Windows ML parcial; navegador/Prolog pendientes |
+| Interacción | Siete estados, foco y controles implementados; contraste de textos ≥7:1; CLS/lector/zoom pendientes |
+| Fiabilidad | Recuperación y aislamiento cubiertos por suite; experiencia real de cámara/red pendiente |
+| Seguridad | DTO estricto, origen, sesión, límites y errores probados; protobuf alto bloquea release |
+| Mantenibilidad | Módulos, locks, CI y trazabilidad presentes; integración operativa aún exploratoria |
+| Flexibilidad | Modelo explícito y voz opcional; Arduino diferido por usuario |
+| Seguridad operacional | Rechazo de incertidumbre y ausencia de texto inventado; falsas emisiones reales sin evaluar |
 
-## Gates de entrega
+## Bloqueos y tratamiento
 
-Gate documental: especificaciones, Kanban y trazabilidad disponibles; revisión del equipo pendiente. Gate demo local: solo capacidades efectivamente probadas y rotuladas, cámara consentida y sin exposición. Gate demo remota: SEC-01 a SEC-07 aprobados, TLS y servidor apropiado, recursos limitados y privacidad visible. Gate intérprete MVP: VAL-01 a VAL-05 aprobados, incluyendo revisión lingüística y evaluación independiente. No heredar aprobación del túnel histórico.
+1. DAT-03: obtener corpus autorizado con cobertura de nueve clases, cuotas y participantes suficientes. Anotaciones PERUSIL inspeccionadas; tar RGB truncado no aceptado.
+2. MOD-02/VAL-03: entrenar y comparar modelos con partición por persona, evaluación independiente y métricas reales.
+3. SEC-DEBT-01: resolver compatibilidad de protobuf corregido y repetir SCA de todos los perfiles incluidos.
+4. UX/QA: navegador, accesibilidad, voz, cámara y benchmark reales. La revisión automática rechazó el lanzamiento de Edge; no se atribuyen resultados al harness.
+5. LOG-01: runtime y paridad Prolog pendientes; Python es la referencia ejecutada.
+6. Validación lingüística: MINEDU como referencia inicial; asesor futuro según instrucción del usuario. Esa deuda permite avanzar el prototipo, pero no acredita aceptación lingüística.
 
-- [ ] Commit candidato, versiones y hashes identificados.
-- [ ] Plan/ADR revisados y alcance de release declarado.
-- [ ] Consentimiento y eliminación de datos verificados.
-- [ ] Matriz de trazabilidad con evidencia PASS para requisitos aplicables.
-- [ ] Pruebas unitarias, integración, sistema, accesibilidad y benchmark aprobadas.
-- [ ] Reporte de modelo independiente y plantillas revisadas.
-- [ ] Secret scan e historial alcanzable auditados; secretos confirmados rotados.
-- [ ] SCA/SBOM actualizado; cero altas/críticas abiertas.
-- [ ] Sin defectos críticos; riesgos residuales con propietario y tratamiento.
-- [ ] Texto base funciona al fallar audio/serial; hardware real probado si se incluye.
-- [ ] Manual de operación, rollback y limpieza de sesiones/datos probado.
-- [ ] Revisor y responsable de release registran dictamen, fecha y evidencia.
-
-Plantilla de cierre: candidato; alcance incluido/excluido; entorno; pruebas ejecutadas/aprobadas/fallidas/no ejecutadas; defectos; métricas; seguridad; riesgos residuales; decisión APTO/NO APTO; responsables; enlaces a evidencia. Auditoría académica interna no implica certificación ISO por un organismo acreditado.
+Arduino no integra este candidato y no bloquea el prototipo. No se han fabricado consentimientos, corpus, precisión ni validaciones humanas. El gate se reevalúa al resolver estos puntos y actualizar la matriz VAL. Demo local exploratoria limitada a capacidades probadas; el dictamen no autoriza despliegue público.

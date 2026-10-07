@@ -1,12 +1,12 @@
-﻿# Kanban del intérprete LSP
+# Kanban del intérprete LSP
 
-Actualización: **2026-10-06**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado basado en inspección del repositorio, sin validar ejecuciones históricas.
+Actualización: **2026-10-06**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado operativo actualizado con ejecución y CI; las tablas de línea base conservan el inventario previo.
 
 ## Estados y definición de terminado
 
 **Documentado**: especificación disponible. **Implementado, por verificar**: código presente, aceptación pendiente. **Por hacer**: stub o trabajo no observado. **Bloqueado**: dependencia concreta pendiente. **Done** exige implementación, pruebas pertinentes y evidencia enlazada; crear un archivo no completa la funcionalidad. No se publica un porcentaje global que mezcle documentación con producto funcionando.
 
-## Aplicación de los once prompts
+## Aplicación de los once prompts (línea base documental)
 
 | Fase | Entregable documental | Estado documental | Estado técnico |
 |---|---|---|---|
@@ -22,7 +22,7 @@ Actualización: **2026-10-06**. Fuente de seguimiento operativo; requisitos en [
 | 10 Hardware | [Serial](docs/hardware/SERIAL-PROTOCOL.md) | Documentado | Host stub; firmware mínimo |
 | 11 Calidad | [Pruebas](docs/quality/TEST-PLAN.md), [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md) | Documentado | Gate de release no aprobado |
 
-## Inventario de tareas históricas
+## Inventario de tareas históricas (línea base anterior a la ejecución)
 
 Se preservan los IDs originales para trazabilidad. Las atribuciones históricas de implementación a Marlon Torres no implican asignación de todo el nuevo backlog.
 
@@ -80,7 +80,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | Tarea | Estado | Registro |
 |---|---|---|
 | PLN-01 | Done (revisión técnica y autorización de implementación) | [Inicio, alcance y límites](docs/execution/PLN-01.md) |
-| ENV-03 | Parcial / bloqueado: DLL SSL y optree por política Windows | [Entorno, pruebas y límites](docs/execution/ENV-03.md) |
+| ENV-03 | Done para Linux CI; Windows parcial por DLL SSL/optree | [Entorno, pruebas y límites](docs/execution/ENV-03.md) |
 | SEC-09 | Done como auditoría; hallazgo alto abierto bloquea release | [Alcance y evidencia](docs/execution/SEC-09.md) |
 | API-01 | Done: contrato v1, validación y conexión; acceso cerrado hasta SEC-10 | [Contrato y seis pruebas](docs/execution/API-01.md) |
 | SEC-10 | Done: sesiones/cuotas/aislamiento; demo remota aún no aprobada | [Controles, pruebas y límites](docs/execution/SEC-10.md) |
@@ -89,7 +89,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | DAT-01 | Done: capturador/persistencia; sin abrir cámara o recolectar corpus | [Inicio y tres pruebas](docs/execution/DAT-01.md) |
 | DAT-02 | Done: loader seguro y split por persona; corpus real pendiente | [Inicio y tres pruebas](docs/execution/DAT-02.md) |
 | DAT-03 | Parcial: corpus abierto inspeccionado, cobertura/cuotas insuficientes | [Conteos y límites](docs/execution/DAT-03.md) |
-| MOD-01 | Parcial: baseline implementado; ejecución Keras bloqueada por ENV-03 | [Configuración y límites](docs/execution/MOD-01.md) |
+| MOD-01 | Done: LSTM/GRU compilados y round-trip en Linux; comparación predictiva depende del corpus | [Configuración y límites](docs/execution/MOD-01.md) |
 | MOD-02 | Parcial: pipeline/dry-run y métricas implementados; sin entrenar | [Validación y gates](docs/execution/MOD-02.md) |
 | INF-01 | Done para motor aislado; modelo real pendiente MOD-02 | [Inicio y tres pruebas](docs/execution/INF-01.md) |
 | LOG-01 | Parcial: reglas Python probadas; paridad/runtime Prolog pendiente | [Reglas y límites](docs/execution/LOG-01.md) |
@@ -98,7 +98,9 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | UX-01 | Parcial: siete estados/controles implementados; navegador rechazado por política | [Flujos y límites](docs/execution/UX-01.md) |
 | AUD-01 | Parcial: voz local opt-in implementada; reproducción/browser pendiente | [Alcance y límites](docs/execution/AUD-01.md) |
 | HW-01 | Diferido por instrucción del usuario: Arduino futuro opcional | [Deuda HW-DEBT-01](docs/TECHNICAL-DEBT.md) |
-| QA-01 | Parcial: 42 PASS / 1 SKIP, integración real de visión; CI pendiente | [Evidencia y límites](docs/execution/QA-01.md) |
+| QA-01 | Parcial de aceptación: CI Linux PASS, 43 tests; Windows 42 PASS / 1 SKIP | [Evidencia y límites](docs/execution/QA-01.md) |
+
+| REL-01 | Done como evaluación del gate: NO APTO para liberar; bloqueos explícitos | [Dictamen y evidencia](docs/execution/REL-01.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 
@@ -106,4 +108,4 @@ M0 revisión → M1 visión/seguridad → M2 corpus → M3 modelo → M4 reglas/
 
 WIP máximo dos tareas por equipo. Registrar en cada tarea propietario, rama, inicio, evidencia, revisión y cierre. Fechas de sprint se fijan tras conocer disponibilidad de equipo/participantes; estimaciones en el plan son esfuerzo, no compromisos de calendario.
 
-[Matriz de trazabilidad](docs/quality/TRACEABILITY-MATRIX.md) y [gate de release](docs/quality/ISO-25010-AUDIT-REPORT.md) mantienen los resultados técnicos pendientes. La solicitud actual completa planeación; no implementa stubs ni aprueba una liberación.
+[Matriz de trazabilidad](docs/quality/TRACEABILITY-MATRIX.md) y [gate de release](docs/quality/ISO-25010-AUDIT-REPORT.md) registran la ejecución actual y los criterios aún pendientes. Se implementaron los módulos del prototipo con commits separados; el dictamen de liberación es NO APTO. Los inventarios históricos anteriores conservan la línea base y no sustituyen esta tabla de ejecución.

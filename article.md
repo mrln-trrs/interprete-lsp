@@ -1,3 +1,5 @@
+> **Actualización de ejecución (2026-10-06):** este artículo conserva la narrativa histórica y arquitectura propuesta. El estado operativo verificable está en [Kanban](KANBAN.md) y [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md): CI Linux 43 tests PASS, pipeline implementado, corpus insuficiente y ningún modelo lingüístico entrenado. Las descripciones de traducción, Prolog, ngrok y hardware no acreditan aceptación ni autorización de despliegue. Arduino es futuro opcional; MINEDU es referencia inicial y el asesor queda como deuda.
+
 # Interprete de Lengua de Senas Peruana con IA
 
 > **Stack:** Python 3.11 · MediaPipe · TensorFlow / Keras · Flask · Prolog · Arduino  
