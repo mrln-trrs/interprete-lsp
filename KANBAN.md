@@ -75,6 +75,15 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 
 ## Orden de ejecución y gates
 
+### Ejecución autorizada el 2026-10-06
+
+| Tarea | Estado | Registro |
+|---|---|---|
+| PLN-01 | Done (revisión técnica y autorización de implementación) | [Inicio, alcance y límites](docs/execution/PLN-01.md) |
+| ENV-03 | Siguiente | Entorno limpio y lock antes de auditoría |
+
+El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
+
 M0 revisión → M1 visión/seguridad → M2 corpus → M3 modelo → M4 reglas/PLN → M5 integración → M6 auditoría. Diseño UX y simulación serial pueden prepararse después de M0 sin esperar entrenamiento. La demo remota requiere controles P0 y pruebas específicas antes de exposición; el MVP requiere todos los VAL aplicables.
 
 WIP máximo dos tareas por equipo. Registrar en cada tarea propietario, rama, inicio, evidencia, revisión y cierre. Fechas de sprint se fijan tras conocer disponibilidad de equipo/participantes; estimaciones en el plan son esfuerzo, no compromisos de calendario.
