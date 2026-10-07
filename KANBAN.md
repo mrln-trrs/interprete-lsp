@@ -80,7 +80,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | Tarea | Estado | Registro |
 |---|---|---|
 | PLN-01 | Done (revisión técnica y autorización de implementación) | [Inicio, alcance y límites](docs/execution/PLN-01.md) |
-| ENV-03 | Siguiente | Entorno limpio y lock antes de auditoría |
+| ENV-03 | Parcial / bloqueado: DLL SSL y optree por política Windows | [Entorno, pruebas y límites](docs/execution/ENV-03.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

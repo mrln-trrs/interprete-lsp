@@ -155,6 +155,8 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+Para reproducir el perfil Windows x64/Python 3.11 resuelto en ENV-03, instalar con `uv pip sync requirements.lock --python venv_lsp/Scripts/python.exe --require-hashes`. [ENV-03](docs/execution/ENV-03.md) registra cuatro pruebas de visión aprobadas y un bloqueo de DLL SSL/optree impuesto por este Windows; el smoke completo de entrenamiento aún no está aprobado. `requirements.resolved.txt` permite auditar las versiones transitivas del mismo perfil.
+
 ---
 
 ## Ejecucion

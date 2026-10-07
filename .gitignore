@@ -21,6 +21,12 @@ models/trained/label_encoder.json
 .DS_Store
 *.log
 
+# Local audit tools, private metadata and browser artifacts
+.tools/
+data/metadata/
+data/consents/
+artifacts/private/
+
 # ── Secretos y configuración local ───────────────────────────────────────────
 # NUNCA subir archivos con tokens, contraseñas o claves de API
 .env
