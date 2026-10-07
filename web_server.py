@@ -33,6 +33,8 @@ from flask import Flask, Response, render_template_string, jsonify, request
 import config.settings as settings
 from src.backend.frame_api import ApiError, register_frame_api
 from src.backend.sessions import SessionManager, register_sessions
+from src.inference.engine import InferenceEngine, load_predictor
+from src.inference.pipeline import TranslationPipeline
 
 app = Flask(__name__)
 
@@ -322,6 +324,11 @@ header p{font-size:.65rem; color:var(--muted)}
 <div class="bottom">
   <button id="btn-stop" type="button">Detener cámara</button>
   <p id="status" role="status" aria-live="polite">Preparado para iniciar</p>
+  <section aria-label="Salida de traducción">
+    <p>Glosas pendientes: <span id="pending-glosses">—</span></p>
+    <p>Texto confirmado: <span id="confirmed-text">—</span></p>
+    <p id="model-state">Reconocimiento pendiente: modelo no disponible</p>
+  </section>
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat"><div class="stat-v" id="s-fps">—</div><div class="stat-l">FPS</div></div>
@@ -491,6 +498,9 @@ async function send() {
     }
     const d = (await r.json()).data;
     if (sendingGeneration !== generation) return;
+    document.getElementById('pending-glosses').textContent = (d.pending_glosses || []).join(' · ') || '—';
+    document.getElementById('confirmed-text').textContent = d.confirmed_text || '—';
+    document.getElementById('model-state').textContent = d.model_available ? 'Modelo exploratorio; revisión lingüística pendiente' : 'Demo de manos: modelo no disponible';
     d.manos = d.hands.map(h => ({label:h.side,
       label_es:h.side === 'Left' ? 'Izquierda' : 'Derecha', confidence:Math.round(h.confidence * 100)}));
     const lat = Date.now() - t0;
@@ -591,9 +601,17 @@ def process_v1_jpeg(image_bytes):
             "hands": hands, "keypoints": keypoints}
 
 
+_predictor, _model_version = None, None
 _sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
-    os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","))
-register_frame_api(app, process_v1_jpeg, _sessions.acquire)
+    os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","),
+    session_factory=lambda: TranslationPipeline(InferenceEngine(_predictor, _model_version)))
+
+
+def enrich_features(frame, result, session):
+    return session["pipeline"].push(frame.frame_id, frame.captured_at_ms, result["keypoints"])
+
+
+register_frame_api(app, process_v1_jpeg, _sessions.acquire, enrich_features)
 register_sessions(app, _sessions)
 
 
@@ -601,7 +619,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", type=str, default="127.0.0.1")
+    parser.add_argument("--model-dir", type=Path, default=None, help="Artefactos locales de procedencia aprobada")
     args = parser.parse_args()
+    if args.model_dir:
+        _predictor, _model_version = load_predictor(args.model_dir)
     if not _sessions.access_key or len(_sessions.access_key) < 32:
         parser.error("Configure LSP_ACCESS_KEY con al menos 32 caracteres; no se imprime su valor.")
     if "LSP_ALLOWED_ORIGINS" not in os.environ:

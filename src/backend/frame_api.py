@@ -154,7 +154,7 @@ def validate_result(result):
             "feature_schema": "hands-126-v1", "normalized": False, "prediction": None}
 
 
-def register_frame_api(app, processor, acquire_session=None):
+def register_frame_api(app, processor, acquire_session=None, on_features=None):
     """acquire_session returns a context manager serializing an authorized session."""
     app.config["MAX_CONTENT_LENGTH"] = MAX_BODY
 
@@ -187,8 +187,10 @@ def register_frame_api(app, processor, acquire_session=None):
         request_id = uuid.uuid4().hex
         start = time.perf_counter()
         try:
-            with acquire_session(frame):
+            with acquire_session(frame) as session:
                 result = validate_result(processor(frame.jpeg))
+                if on_features:
+                    result.update(on_features(frame, result, session))
             result.update(frame_id=frame.frame_id, processing_ms=(time.perf_counter() - start) * 1000)
             return jsonify(success=True, data=result, error=None, request_id=request_id)
         except ApiError:

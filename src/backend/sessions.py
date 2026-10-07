@@ -11,10 +11,11 @@ from src.backend.frame_api import ApiError, strict_json_request
 
 
 class SessionManager:
-    def __init__(self, access_key, allowed_origins, clock=time.monotonic):
+    def __init__(self, access_key, allowed_origins, clock=time.monotonic, session_factory=None):
         self.access_key = access_key
         self.allowed_origins = frozenset(allowed_origins)
         self.clock = clock
+        self.session_factory = session_factory
         self.lock = threading.Lock()
         self.session = None
         self.create_attempts = deque()
@@ -63,7 +64,8 @@ class SessionManager:
                 raise ApiError(503, "CAPACITY", "Ya hay una sesión activa.")
             token = secrets.token_urlsafe(32)
             self.session = {"id": token, "last_activity": now, "frame_id": -1,
-                            "timestamp": -1, "requests": deque()}
+                            "timestamp": -1, "requests": deque(),
+                            "pipeline": self.session_factory() if self.session_factory else None}
             return token
 
     def authorized_session(self, session_id):
@@ -91,7 +93,7 @@ class SessionManager:
             session["frame_id"] = frame.frame_id
             session["timestamp"] = frame.captured_at_ms
             session["last_activity"] = now
-            yield
+            yield session
 
     def delete(self, session_id):
         self.check_origin()
