@@ -91,6 +91,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | DAT-03 | Parcial: corpus abierto inspeccionado, cobertura/cuotas insuficientes | [Conteos y límites](docs/execution/DAT-03.md) |
 | MOD-01 | Parcial: baseline implementado; ejecución Keras bloqueada por ENV-03 | [Configuración y límites](docs/execution/MOD-01.md) |
 | MOD-02 | Parcial: pipeline/dry-run y métricas implementados; sin entrenar | [Validación y gates](docs/execution/MOD-02.md) |
+| INF-01 | Done para motor aislado; modelo real pendiente MOD-02 | [Inicio y tres pruebas](docs/execution/INF-01.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 
