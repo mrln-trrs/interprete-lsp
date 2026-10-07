@@ -27,6 +27,7 @@ def jpeg_dimensions(data):
     if not data.startswith(b"\xff\xd8") or not data.endswith(b"\xff\xd9"):
         raise ApiError(400, "INVALID_FRAME", "El frame no contiene un JPEG válido.")
     position = 2
+    dimensions = None
     while position < len(data) - 2:
         if data[position] != 255:
             break
@@ -46,6 +47,8 @@ def jpeg_dimensions(data):
         if length < 2 or position + length > len(data):
             break
         if marker in (0xC0, 0xC1, 0xC2):
+            if dimensions is not None:
+                raise ApiError(400, "INVALID_FRAME", "La imagen tiene cabeceras contradictorias.")
             if length < 8:
                 break
             height = int.from_bytes(data[position + 3:position + 5], "big")
@@ -54,8 +57,10 @@ def jpeg_dimensions(data):
                 break
             if width > MAX_WIDTH or height > MAX_HEIGHT:
                 raise ApiError(413, "IMAGE_TOO_LARGE", "La imagen excede las dimensiones permitidas.")
-            return width, height
+            dimensions = (width, height)
         position += length
+    if dimensions is not None:
+        return dimensions
     raise ApiError(400, "INVALID_FRAME", "La cabecera JPEG no es válida.")
 
 
@@ -132,7 +137,10 @@ def validate_result(result):
         raise ValueError("Invalid processor vector")
     if any(type(value) not in (int, float) or not math.isfinite(value) for value in vector):
         raise ValueError("Non-finite processor vector")
-    decode_jpeg(result.get("frame"))
+    try:
+        decode_jpeg(result.get("frame"))
+    except ApiError:
+        raise ValueError("Invalid processor image") from None
     hands = result.get("hands")
     if not isinstance(hands, list) or len(hands) > 2:
         raise ValueError("Invalid hands")

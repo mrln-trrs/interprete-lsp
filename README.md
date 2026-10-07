@@ -163,6 +163,8 @@ Para reproducir el perfil Windows x64/Python 3.11 resuelto en ENV-03, instalar c
 
 ### Demo web -- camara del dispositivo procesada por MediaPipe
 
+Desde SEC-10, configurar `LSP_ACCESS_KEY` con una clave aleatoria de al menos 32 caracteres en el entorno e introducirla en la UI; `.env.example` no se carga automáticamente. El servidor escucha localhost por defecto, permite una sesión y retira `/process_frame` con 410. Contrato vigente: `/api/v1/sessions` y `/api/v1/process-frame`. Ver [operación y límites](docs/execution/SEC-10.md). Las instrucciones de ngrok siguientes son antecedentes; no exponer hasta resolver los gates de seguridad.
+
 Esta modalidad permite demostrar el sistema a terceros desde sus propios celulares sin necesidad de instalacion adicional.
 
 ```powershell

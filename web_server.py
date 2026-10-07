@@ -17,12 +17,14 @@ import argparse
 import base64
 import threading
 import os
+import logging
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+os.environ.setdefault("OPENCV_IO_MAX_IMAGE_PIXELS", str(1280 * 720))
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -30,6 +32,7 @@ from flask import Flask, Response, render_template_string, jsonify, request
 
 import config.settings as settings
 from src.backend.frame_api import ApiError, register_frame_api
+from src.backend.sessions import SessionManager, register_sessions
 
 app = Flask(__name__)
 
@@ -48,7 +51,7 @@ class HandDetector:
         self._drawing     = mp.solutions.drawing_utils
         self._draw_styles = mp.solutions.drawing_styles
         self.hands = _mp.Hands(
-            static_image_mode=False,
+            static_image_mode=True,
             max_num_hands=2,
             min_detection_confidence=settings.MIN_DETECTION_CONFIDENCE,
             min_tracking_confidence=settings.MIN_TRACKING_CONFIDENCE,
@@ -112,7 +115,6 @@ _HTML = """<!DOCTYPE html>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>LSP — Detección de Manos</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --bg:#0a0d14; --card:#111827; --border:#1e2a3a;
@@ -287,7 +289,7 @@ header p{font-size:.65rem; color:var(--muted)}
 <header>
   <div class="logo">🤟</div>
   <div>
-    <h1>Intérprete LSP</h1>
+    <h1>Demo LSP: detección de manos</h1>
     <p>Tu cámara · Procesado por MediaPipe</p>
   </div>
   <div class="pill" id="live-pill" style="display:none">
@@ -310,11 +312,16 @@ header p{font-size:.65rem; color:var(--muted)}
     <p>Apunta la cámara de tu celular a tus manos.<br/>
        Tu laptop las detecta con <strong>MediaPipe</strong> en tiempo real.</p>
     <button class="btn-start" id="btn-start">📷 Activar cámara</button>
+    <label for="access-key">Clave de acceso del operador</label>
+    <input id="access-key" type="password" autocomplete="off" maxlength="512"/>
+    <p>No se guardan imágenes. Esta demo detecta manos; aún no reconoce señas.</p>
   </div>
 </div>
 
 <!-- PANEL INFERIOR -->
 <div class="bottom">
+  <button id="btn-stop" type="button">Detener cámara</button>
+  <p id="status" role="status" aria-live="polite">Preparado para iniciar</p>
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat"><div class="stat-v" id="s-fps">—</div><div class="stat-l">FPS</div></div>
@@ -365,37 +372,88 @@ let lastSend    = 0;
 let frameCount  = 0;
 let fpsTs       = Date.now();
 let displayFps  = 0;
+let sessionId = null;
+let sessionStart = 0;
+let frameId = 0;
+let generation = 0;
+let starting = false;
+let inFlight = null;
+const statusText = document.getElementById('status');
+
+async function stopCamera() {
+  generation++;
+  inFlight?.abort();
+  stream?.getTracks().forEach(t => t.stop());
+  stream = null;
+  video.srcObject = null;
+  const closingSession = sessionId;
+  sessionId = null;
+  overlay.style.display = 'flex';
+  livePill.style.display = 'none';
+  btnFlip.style.display = 'none';
+  statusText.textContent = 'Cámara detenida';
+  if (closingSession) {
+    try { await fetch('/api/v1/sessions/' + closingSession, {
+      method:'DELETE', headers:{Authorization:'Bearer ' + closingSession},
+      signal:AbortSignal.timeout(3000), keepalive:true
+    }); } catch(e) { statusText.textContent = 'Cámara detenida; la sesión expira automáticamente'; }
+  }
+}
+document.getElementById('btn-stop').addEventListener('click', stopCamera);
+window.addEventListener('pagehide', stopCamera);
 
 // ── Activar cámara ──────────────────────────────────────────────────────────
 async function startCamera() {
+  if (starting || stream) return;
+  starting = true;
+  const openingGeneration = ++generation;
   try {
+    if (!sessionId) {
+      const keyInput = document.getElementById('access-key');
+      const accessKey = keyInput.value;
+      keyInput.value = '';
+      const response = await fetch('/api/v1/sessions', {
+        method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + accessKey},
+        body:'{}', signal:AbortSignal.timeout(3000)
+      });
+      if (!response.ok) throw new Error('No se pudo autorizar la sesión. Revisa la clave o disponibilidad.');
+      sessionId = (await response.json()).data.session_id;
+      sessionStart = performance.now(); frameId = 0;
+      if (openingGeneration !== generation) { await stopCamera(); return; }
+    }
     stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: facing, width:{ideal:1280}, height:{ideal:720} },
       audio: false
     });
+    if (openingGeneration !== generation) { stream.getTracks().forEach(t => t.stop()); stream = null; return; }
     video.srcObject = stream;
     await video.play();
     overlay.style.display  = 'none';
     btnFlip.style.display  = 'flex';
     livePill.style.display = 'flex';
     latBadge.style.display = 'block';
-    requestAnimationFrame(loop);
+    statusText.textContent = 'Detectando manos';
+    requestAnimationFrame(() => loop(openingGeneration));
   } catch(e) {
-    alert('No se pudo acceder a la cámara: ' + e.message);
+    await stopCamera();
+    statusText.textContent = e.message;
+  } finally {
+    starting = false;
   }
 }
 btnStart.addEventListener('click', startCamera);
 
 btnFlip.addEventListener('click', async () => {
   stream?.getTracks().forEach(t => t.stop());
+  stream = null; generation++; inFlight?.abort();
   facing = facing === 'user' ? 'environment' : 'user';
   await startCamera();
 });
 
 // ── Loop de captura ─────────────────────────────────────────────────────────
-function loop() {
-  if (!stream) return;
-  requestAnimationFrame(loop);
+function loop(loopGeneration) {
+  if (!stream || loopGeneration !== generation) return;
+  requestAnimationFrame(() => loop(loopGeneration));
   const now = Date.now();
   if ((now - lastSend) < 1000 / TARGET_FPS) return;
   if (sending || video.readyState < 2) return;
@@ -415,14 +473,26 @@ async function send() {
   capCanvas.height = Math.round(vh * sc);
   capCtx.drawImage(video, 0, 0, capCanvas.width, capCanvas.height);
   const dataUrl = capCanvas.toDataURL('image/jpeg', JPEG_Q);
+  const sendingGeneration = generation;
+  inFlight = new AbortController();
+  const timeout = setTimeout(() => inFlight?.abort(), 3000);
   try {
-    const r = await fetch('/process_frame', {
+    const r = await fetch('/api/v1/process-frame', {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ frame: dataUrl })
+      headers:{'Content-Type':'application/json', Authorization:'Bearer ' + sessionId},
+      body: JSON.stringify({ frame: dataUrl, session_id:sessionId,
+        frame_id:frameId++, captured_at_ms:performance.now() - sessionStart }),
+      signal:inFlight.signal
     });
-    if (!r.ok) { sending=false; return; }
-    const d = await r.json();
+    if (!r.ok) {
+      statusText.textContent = 'Procesamiento no disponible; detén y vuelve a iniciar';
+      if ([401,403,503].includes(r.status)) await stopCamera();
+      return;
+    }
+    const d = (await r.json()).data;
+    if (sendingGeneration !== generation) return;
+    d.manos = d.hands.map(h => ({label:h.side,
+      label_es:h.side === 'Left' ? 'Izquierda' : 'Derecha', confidence:Math.round(h.confidence * 100)}));
     const lat = Date.now() - t0;
     if (d.frame) procImg.src = d.frame;
     sFps.textContent   = displayFps;
@@ -433,8 +503,8 @@ async function send() {
     latVal.textContent = lat;
     renderHands(d.manos||[]);
     renderKP(kp);
-  } catch(e){ console.warn(e); }
-  finally{ sending=false; }
+  } catch(e){ if (sendingGeneration === generation) statusText.textContent = 'Conexión interrumpida'; }
+  finally{ clearTimeout(timeout); inFlight = null; sending=false; }
 }
 
 // ── Render manos ──────────────────────────────────────────────────────────
@@ -494,40 +564,7 @@ def index():
 
 @app.route("/process_frame", methods=["POST"])
 def process_frame():
-    """
-    Recibe: { "frame": "data:image/jpeg;base64,..." }
-    Devuelve: { "frame": "data:image/jpeg;base64,...", "manos": [...], "keypoints": [...] }
-    """
-    global _detector
-    try:
-        payload  = request.get_json(force=True)
-        data_url = payload.get("frame", "")
-
-        # Decodificar base64 → numpy BGR
-        if "," in data_url:
-            data_url = data_url.split(",", 1)[1]
-        img_bytes = base64.b64decode(data_url)
-        nparr     = np.frombuffer(img_bytes, np.uint8)
-        frame     = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        if frame is None:
-            return jsonify({"error": "frame inválido"}), 400
-
-        # Procesar (lock serializa acceso entre clientes concurrentes)
-        with _detector_lock:
-            results   = _detector.process(frame)
-            annotated = _detector.draw(frame.copy(), results)
-            manos     = _detector.meta(results)
-            kp        = _detector.keypoints(results)
-
-        # Codificar frame anotado
-        _, buf  = cv2.imencode(".jpg", annotated, [cv2.IMWRITE_JPEG_QUALITY, 78])
-        out_b64 = "data:image/jpeg;base64," + base64.b64encode(buf).decode()
-
-        return jsonify({"frame": out_b64, "manos": manos, "keypoints": kp})
-
-    except Exception as e:
-        print(f"[ERROR] /process_frame: {e}")
-        return jsonify({"error": str(e)}), 500
+    raise ApiError(410, "LEGACY_REMOVED", "Use la interfaz actual con sesión autorizada.")
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -554,15 +591,23 @@ def process_v1_jpeg(image_bytes):
             "hands": hands, "keypoints": keypoints}
 
 
-# Closed until SEC-10 wires authorized sessions. Legacy migration is a separate task.
-register_frame_api(app, process_v1_jpeg)
+_sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
+    os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","))
+register_frame_api(app, process_v1_jpeg, _sessions.acquire)
+register_sessions(app, _sessions)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=5000)
-    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--host", type=str, default="127.0.0.1")
     args = parser.parse_args()
+    if not _sessions.access_key or len(_sessions.access_key) < 32:
+        parser.error("Configure LSP_ACCESS_KEY con al menos 32 caracteres; no se imprime su valor.")
+    if "LSP_ALLOWED_ORIGINS" not in os.environ:
+        _sessions.allowed_origins = frozenset({f"http://127.0.0.1:{args.port}", f"http://localhost:{args.port}"})
+        if args.host not in ("127.0.0.1", "localhost", "::1"):
+            parser.error("Para acceso remoto configure LSP_ALLOWED_ORIGINS explícitamente.")
 
     print("[INFO] Cargando MediaPipe Hands...")
     _detector = HandDetector()
@@ -577,4 +622,6 @@ if __name__ == "__main__":
     print("  Ctrl+C para detener")
     print("=" * 50)
 
+    # Session IDs are capability tokens: the development access log must not log URLs.
+    logging.getLogger("werkzeug").disabled = True
     app.run(host=args.host, port=args.port, debug=False, threaded=True)
