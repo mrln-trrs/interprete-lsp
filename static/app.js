@@ -47,11 +47,21 @@ function speakConfirmed(text) {
   const voices = synthesis?.getVoices().filter(candidate => candidate.localService) || [];
   const voice = voices.find(candidate => candidate.lang.toLowerCase().startsWith('es')) || voices[0];
   if (!voice) { voiceState.textContent = 'No hay voz local disponible todavía; pulsa Probar voz de nuevo'; return; }
-  synthesis.cancel(); // Bound the audio queue to the most recent confirmed sentence.
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = voice; utterance.lang = voice.lang; utterance.rate = 0.9;
-  utterance.onerror = () => { voiceState.textContent = 'La voz falló; el texto se conserva'; };
-  synthesis.speak(utterance);
+  try {
+    synthesis.cancel(); // Bound the audio queue to the most recent confirmed sentence.
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voice; utterance.lang = voice.lang; utterance.rate = 0.9;
+    utterance.onerror = (event) => {
+      // cancel() al parar o limpiar interrumpe a propósito: no es un fallo de voz.
+      if (event.error === 'interrupted' || event.error === 'canceled') return;
+      voiceState.textContent = 'La voz falló; el texto se conserva';
+    };
+    synthesis.speak(utterance);
+  } catch (error) {
+    // Una falla síncrona de la voz no debe cortar la cámara ni la sesión.
+    voiceState.textContent = 'La voz falló; el texto se conserva';
+    return;
+  }
   voiceState.textContent = voice.lang.toLowerCase().startsWith('es') ? 'Voz local en español activada' : 'Voz local disponible; instala una voz española para mejorar la pronunciación';
 }
 window.speechSynthesis?.getVoices(); // Start asynchronous OS voice discovery.
