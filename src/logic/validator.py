@@ -12,7 +12,7 @@ def valid_prediction(class_id, confidence, stable_frames):
             and type(stable_frames) is int and stable_frames >= 10)
 
 
-def prolog_accepts(class_id, confidence, stable_frames):
+def prolog_accepts(class_id, confidence, stable_frames, timeout=0.05):
     if type(class_id) is not int or type(stable_frames) is not int or type(confidence) not in (int, float) or not math.isfinite(confidence) or not 0 <= confidence <= 1:
         return False
     executable = shutil.which("swipl")
@@ -22,7 +22,7 @@ def prolog_accepts(class_id, confidence, stable_frames):
     goal = f"valid_prediction({class_id},{confidence:.17f},{stable_frames}),halt"
     try:
         result = subprocess.run([executable, "-q", "-s", str(rules), "-g", goal, "-t", "halt(1)"],
-                                capture_output=True, timeout=0.05, check=False)
+                                capture_output=True, timeout=timeout, check=False)
         return result.returncode == 0
     except subprocess.TimeoutExpired:
         return False
