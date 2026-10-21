@@ -34,6 +34,13 @@ def classification_metrics(actual, predicted, num_classes=len(ACTIONS)):
             "support": support.tolist(), "confusion_matrix": confusion.tolist()}
 
 
+def current_commit():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL).strip()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"  # Sin git (contenedor mínimo); la procedencia queda marcada como desconocida.
+
+
 def prepare_training(root, allow_unreviewed=False):
     dataset = load_dataset(root, allow_unreviewed)
     splits = split_dataset(dataset)
@@ -81,7 +88,7 @@ def run_training(dataset, splits, output_dir, epochs=100, evaluate_test=False, a
     metadata = {"schema_version": FEATURE_SCHEMA, "normalization_version": NORMALIZATION_VERSION,
                 "mirror_convention": MIRROR_CONVENTION, "class_order": ACTIONS, "seed": 42,
                 "python": platform.python_version(), "tensorflow": tf.__version__,
-                "commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+                "commit": current_commit(),
                 "manifest_sha256": dataset.manifest_sha256, "model_sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
                 "selected": selected, "histories": histories, "test_metrics": None,
                 "exploratory": allow_unreviewed, "release_approved": False}
