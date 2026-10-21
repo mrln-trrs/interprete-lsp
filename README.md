@@ -6,7 +6,7 @@ Prototipo académico LSP → glosas → español, con vocabulario cerrado de nue
 
 El [plan maestro](docs/PLAN-INTERPRETE-LSP.md) adapta los [prompts del proyecto](<Prompts Maestros Integrales del Proyecto LSP.md>). El [Kanban](KANBAN.md) registra inicio, alcance, dependencias y límites de cada tarea mediante sus fichas de ejecución. La [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md) mantiene el dictamen **NO APTO para release o exposición pública**: corpus insuficiente y vulnerabilidad alta de protobuf abierta.
 
-Por decisión del usuario, Arduino es una implementación futura opcional. La referencia lingüística inicial es el libro oficial de MINEDU; la revisión con asesor se registra como [deuda técnica](docs/TECHNICAL-DEBT.md). Se aprovechan fuentes gratuitas respetando sus permisos. Las plantillas actuales son exploratorias.
+Arduino es opcional y viene desactivado: `python web_server.py --serial-port COM3` (o `/dev/ttyUSB0`) activa la salida del protocolo V1 con el firmware de `arduino/`; si el puerto no responde, la demo sigue sin hardware ([HW-01](docs/execution/HW-01.md)). La referencia lingüística inicial es el libro oficial de MINEDU; la revisión con asesor se registra como [deuda técnica](docs/TECHNICAL-DEBT.md). Se aprovechan fuentes gratuitas respetando sus permisos. Las plantillas actuales son exploratorias.
 
 ## Entorno reproducible
 
@@ -26,7 +26,7 @@ En este Windows, el control de aplicaciones bloquea DLL SSL/optree; no se desact
 
 ## Demo local
 
-Configura `LSP_ACCESS_KEY` con un secreto de al menos 32 caracteres; la plantilla `.env.example` no se carga automáticamente. Ejecuta:
+Sin `LSP_ACCESS_KEY` la demo no pide clave: solo valida el origen y admite una sesión a la vez. Para exigir clave, configura `LSP_ACCESS_KEY` con un secreto de al menos 32 caracteres; la plantilla `.env.example` no se carga automáticamente. Ejecuta:
 
 ```powershell
 .\venv_lsp\Scripts\python.exe web_server.py --host 127.0.0.1 --port 5000
@@ -58,7 +58,7 @@ python -m unittest discover -s tests -v
 python -m scripts.check_contrast
 ```
 
-CI Linux: 43 tests aprobados, smoke nativo y contraste aprobado. Windows: 42 aprobados y un test de ML omitido por política local. Las pruebas sintéticas validan software, no precisión lingüística. Navegador, cámara real, voz, Prolog y benchmark de latencia conservan límites explícitos en [QA-01](docs/execution/QA-01.md).
+Local 2026-10-21 (Linux aarch64 en OrbStack, `LSP_NATIVE_ML_TESTS=1`, SWI-Prolog y g++): 77 tests aprobados, 0 omitidos; navegador con `python -m scripts.browser_check [--sin-clave]` en Edge headless 20/20 en escritorio y celular (390 y 320 px); tokens con `python -m scripts.export_tokens --check`; latencia con `python -m scripts.benchmark_latency --url http://127.0.0.1:5000`. CI Linux previa: 43 tests aprobados, smoke nativo y contraste aprobado. Windows: 42 aprobados y un test de ML omitido por política local. Las pruebas sintéticas validan software, no precisión lingüística. Navegador, cámara real, voz, Prolog y benchmark de latencia conservan límites explícitos en [QA-01](docs/execution/QA-01.md).
 
 ## Organización
 

@@ -1,0 +1,8 @@
+{
+ "test": "Prueba de sistema única (no está en la suite)",
+ "date": "2026-10-21",
+ "setup": "web_server.py --model-dir <modelo LSTM entrenado con corpus sintético> --serial-port <pty con FirmwareSimulator>, Linux aarch64 OrbStack",
+ "checks": {"preflight Arduino conectado": true, "modelo listo en la página": true, "frame procesado con modelo disponible": true, "handshake PING recibido por el firmware": true, "log anuncia Arduino conectado": true},
+ "firmware_avr": {"fqbn": "arduino:avr:uno", "core": "arduino:avr 1.8.8", "arduino_cli": "1.1.1", "flash_bytes": 4532, "flash_pct": 14, "ram_bytes": 346, "ram_pct": 16, "sketch_warnings": 0},
+ "secret_scan": {"tool": "gitleaks 8.21.2", "git_commits": 35, "git_leaks": 0, "worktree_findings": 12, "worktree_findings_location": "venv_lsp/ (ignorado por git; librerías de terceros cv2, numpy, serial, win32)"}
+}

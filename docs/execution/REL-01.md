@@ -9,3 +9,7 @@ Dependencias: QA-01 y SEC-09/10. Resultado: [CI](https://github.com/mrln-trrs/in
 Límite: corpus insuficiente, modelo real ausente, protobuf alto, aceptación de navegador/cámara/voz y Prolog pendientes. Arduino futuro opcional. Revisión con asesor registrada como deuda, sin bloquear desarrollo exploratorio. El [dictamen](../quality/ISO-25010-AUDIT-REPORT.md) distingue cierre de la evaluación y aprobación del release.
 
 SCA de cierre: Windows 73 y Linux 68 dependencias; una afectada en cada perfil y cero consultas fallidas. Historial y snapshot del codigo sin coincidencias de secretos. La CI acreditada corresponde a e4880b7; a60c8f2 solo corrige el fixture de navegador, generado sin errores, sin afirmar aceptacion visual.
+
+## Revisión 2026-10-21
+
+Con HW-01, MOD-02 de punta a punta, DS-01/UX-01/AUD-01 en navegador y 77 tests PASS, el software queda completo para el prototipo. El dictamen sigue **NO APTO** para liberar: falta corpus real y entrenamiento (DAT-03/MOD-02), protobuf alto (SEC-DEBT-01), revisión con asesor LSP y pruebas con personas, cámara y placa reales.

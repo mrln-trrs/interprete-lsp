@@ -1,6 +1,6 @@
 # Kanban del intérprete LSP
 
-Actualización: **2026-10-06**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado operativo actualizado con ejecución y CI; las tablas de línea base conservan el inventario previo.
+Actualización: **2026-10-21**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado operativo actualizado con ejecución y CI; las tablas de línea base conservan el inventario previo.
 
 ## Estados y definición de terminado
 
@@ -81,27 +81,28 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 |---|---|---|
 | PLN-01 | Done (revisión técnica y autorización de implementación) | [Inicio, alcance y límites](docs/execution/PLN-01.md) |
 | ENV-03 | Done para Linux CI; Windows parcial por DLL SSL/optree | [Entorno, pruebas y límites](docs/execution/ENV-03.md) |
-| SEC-09 | Done como auditoría; hallazgo alto abierto bloquea release | [Alcance y evidencia](docs/execution/SEC-09.md) |
+| SEC-09 | Done como auditoría; 2026-10-21 pillow 13 y certifi corregidos; secretos: historial limpio; protobuf alto sigue abierto y bloquea release | [Alcance y evidencia](docs/execution/SEC-09.md) |
 | API-01 | Done: contrato v1, validación y conexión; acceso cerrado hasta SEC-10 | [Contrato y seis pruebas](docs/execution/API-01.md) |
-| SEC-10 | Done: sesiones/cuotas/aislamiento; demo remota aún no aprobada | [Controles, pruebas y límites](docs/execution/SEC-10.md) |
+| SEC-10 | Done: sesiones/cuotas/aislamiento; clave opcional para demo local (2026-10-21); demo remota aún no aprobada | [Controles, pruebas y límites](docs/execution/SEC-10.md) |
 | VIS-04 | Done para prototipo; asesor/ablación/cámara quedan como deuda | [Esquema provisional y pruebas](docs/execution/VIS-04.md) |
 | DAT-04 | Done para política y fuentes abiertas; nuevas grabaciones requieren consentimiento | [Gobierno y límites](docs/execution/DAT-04.md) |
 | DAT-01 | Done: capturador/persistencia; sin abrir cámara o recolectar corpus | [Inicio y tres pruebas](docs/execution/DAT-01.md) |
 | DAT-02 | Done: loader seguro y split por persona; corpus real pendiente | [Inicio y tres pruebas](docs/execution/DAT-02.md) |
 | DAT-03 | Parcial: corpus abierto inspeccionado, cobertura/cuotas insuficientes | [Conteos y límites](docs/execution/DAT-03.md) |
 | MOD-01 | Done: LSTM/GRU compilados y round-trip en Linux; comparación predictiva depende del corpus | [Configuración y límites](docs/execution/MOD-01.md) |
-| MOD-02 | Parcial: pipeline/dry-run y métricas implementados; sin entrenar | [Validación y gates](docs/execution/MOD-02.md) |
+| MOD-02 | Done para software: fit/guardado/carga/inferencia de punta a punta con corpus sintético (2026-10-21); entrenamiento real bloqueado por DAT-03 | [Validación y gates](docs/execution/MOD-02.md) |
 | INF-01 | Done para motor aislado; modelo real pendiente MOD-02 | [Inicio y tres pruebas](docs/execution/INF-01.md) |
-| LOG-01 | Parcial: reglas Python probadas; paridad/runtime Prolog pendiente | [Reglas y límites](docs/execution/LOG-01.md) |
+| LOG-01 | Done: paridad Prolog/Python 105/105 y runtime SWI-Prolog 9.2.9 en Linux; vocabulario de 68 clases alineado | [Reglas y límites](docs/execution/LOG-01.md) |
 | NLP-01 | Done para plantillas exploratorias y pipeline; asesor/modelo real pendientes | [Inicio y pruebas](docs/execution/NLP-01.md) |
-| DS-01 | Parcial: tokens/layout y contraste ≥7:1; CLS/browser pendiente | [Cambios y medición](docs/execution/DS-01.md) |
-| UX-01 | Parcial: siete estados/controles implementados; navegador rechazado por política | [Flujos y límites](docs/execution/UX-01.md) |
-| AUD-01 | Parcial: voz local opt-in implementada; reproducción/browser pendiente | [Alcance y límites](docs/execution/AUD-01.md) |
-| HW-01 | Diferido por instrucción del usuario: Arduino futuro opcional | [Deuda HW-DEBT-01](docs/TECHNICAL-DEBT.md) |
-| QA-01 | Parcial de aceptación: CI Linux PASS, 43 tests; Windows 42 PASS / 1 SKIP | [Evidencia y límites](docs/execution/QA-01.md) |
+| DS-01 | Done para software: contraste ≥9.8:1, CLS ≤0.045, sin desborde a 390/320 px y tokens DTCG 2025.10 generados del CSS (2026-10-21); revisión con persona pendiente | [Cambios y medición](docs/execution/DS-01.md) |
+| UX-01 | Done para software: harness 20/20 en escritorio y celular (teclado, nombres accesibles, voz, desborde); lector de pantalla y prueba con persona pendientes | [Flujos y límites](docs/execution/UX-01.md) |
+| AUD-01 | Done para software: voz sintética verificada (candidatos mudos, una frase vigente, falla no corta la sesión); audio audible con persona pendiente | [Alcance y límites](docs/execution/AUD-01.md) |
+| HW-01 | Done para software (2026-10-21): host V1, firmware Uno y simulador; HW-T01–07 y paridad firmware/simulador PASS; opcional con `--serial-port`; placa real pendiente | [Alcance y pruebas](docs/execution/HW-01.md) |
+| QA-01 | Parcial de aceptación: 77/77 en Linux aarch64 (ML, Prolog, firmware); navegador 20/20 ×4; prueba de sistema 5/5; T-PERF-01 medido; falta cámara real y personas | [Evidencia y límites](docs/execution/QA-01.md) |
 
 | REL-01 | Done como evaluación del gate: NO APTO para liberar; bloqueos explícitos | [Dictamen y evidencia](docs/execution/REL-01.md) |
 | DEMO-01 | Done para software: saludo geométrico HOLA y TTS, 6 tests nuevos; prueba física del usuario pendiente | [Inicio, alcance y límites](docs/execution/DEMO-01.md) |
+| DEMO-02 | Done para software: banco de números, abecedario y meses (`--media-demo`); procedencia de medios y validación pendientes | [Alcance y límites](docs/execution/DEMO-02.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 
