@@ -81,6 +81,13 @@ class TestSessions(unittest.TestCase):
         self.manager.access_key = None
         self.assertEqual(self.client.post("/api/v1/sessions", json={}, headers=self.headers).status_code, 503)
 
+    def test_without_key_opens_session_with_origin(self):
+        self.manager.access_key = None
+        self.manager.require_key = False
+        response = self.client.post("/api/v1/sessions", json={}, headers={"Origin": "http://localhost"})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.client.post("/api/v1/sessions", json={}).status_code, 403)
+
     def test_creation_rate_limit_and_security_headers(self):
         headers = {**self.headers, "Authorization": "Bearer invalid"}
         for _ in range(30):

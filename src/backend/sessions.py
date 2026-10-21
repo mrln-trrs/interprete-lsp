@@ -11,8 +11,10 @@ from src.backend.frame_api import ApiError, strict_json_request
 
 
 class SessionManager:
-    def __init__(self, access_key, allowed_origins, clock=time.monotonic, session_factory=None):
+    def __init__(self, access_key, allowed_origins, clock=time.monotonic, session_factory=None, require_key=True):
         self.access_key = access_key
+        # Sin clave solo protegen el origen y la sesión única; para la demo local.
+        self.require_key = require_key
         self.allowed_origins = frozenset(allowed_origins)
         self.clock = clock
         self.session_factory = session_factory
@@ -49,7 +51,7 @@ class SessionManager:
         payload = strict_json_request()
         if payload:
             raise ApiError(400, "INVALID_FIELDS", "La apertura de sesión no requiere campos.")
-        if not self.access_key or len(self.access_key) < 32:
+        if self.require_key and (not self.access_key or len(self.access_key) < 32):
             raise ApiError(503, "NOT_CONFIGURED", "El acceso no está configurado.")
         with self.exclusive():
             now = self.clock()
@@ -58,7 +60,7 @@ class SessionManager:
             if len(self.create_attempts) >= 30:
                 raise ApiError(429, "RATE_LIMIT", "Espere antes de volver a intentar.")
             self.create_attempts.append(now)
-            if not hmac.compare_digest(self.bearer().encode(), self.access_key.encode()):
+            if self.require_key and not hmac.compare_digest(self.bearer().encode(), self.access_key.encode()):
                 raise ApiError(401, "UNAUTHORIZED", "La clave no es válida.")
             if self.session:
                 raise ApiError(503, "CAPACITY", "Ya hay una sesión activa.")

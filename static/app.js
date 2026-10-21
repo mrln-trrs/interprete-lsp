@@ -136,10 +136,12 @@ async function startCamera() {
   try {
     if (!sessionId) {
       const keyInput = document.getElementById('access-key');
-      const accessKey = keyInput.value;
-      keyInput.value = '';
+      const accessKey = keyInput ? keyInput.value : '';
+      if (keyInput) keyInput.value = '';
+      const headers = {'Content-Type':'application/json'};
+      if (accessKey) headers.Authorization = 'Bearer ' + accessKey;
       const response = await fetch('/api/v1/sessions', {
-        method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + accessKey},
+        method:'POST', headers,
         body:'{}', signal:AbortSignal.timeout(3000)
       });
       if (!response.ok) throw new Error('No se pudo autorizar la sesión. Revisa la clave o disponibilidad.');

@@ -151,8 +151,10 @@ _HTML = """<!DOCTYPE html>
     <p>Apunta la cámara de tu celular a tus manos.<br/>
        Tu laptop las detecta con <strong>MediaPipe</strong> en tiempo real.</p>
     <button class="btn-start" id="btn-start">📷 Activar cámara</button>
+    {% if key_required %}
     <label for="access-key">Clave de acceso del operador</label>
     <input id="access-key" type="password" autocomplete="off" maxlength="512"/>
+    {% endif %}
     <p>No se guardan imágenes. Esta demo detecta manos; aún no reconoce señas.</p>
   </div>
 </div>
@@ -203,7 +205,8 @@ _HTML = """<!DOCTYPE html>
 # ══════════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def index():
-    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo, gesture_demo=_gesture_demo or _media_demo)
+    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo, gesture_demo=_gesture_demo or _media_demo,
+        key_required=_sessions.require_key)
 
 
 @app.route("/process_frame", methods=["POST"])
@@ -249,9 +252,11 @@ def _build_session_engine():
     return InferenceEngine(_predictor, _model_version)
 
 
+# Sin LSP_ACCESS_KEY la demo no pide clave; con ella, se exige como antes.
 _sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
     os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","),
-    session_factory=lambda: TranslationPipeline(_build_session_engine()))
+    session_factory=lambda: TranslationPipeline(_build_session_engine()),
+    require_key=bool(os.environ.get("LSP_ACCESS_KEY")))
 
 
 def enrich_features(frame, result, session):
@@ -280,7 +285,7 @@ if __name__ == "__main__":
         _media_categories = (args.media_category,)
     if args.model_dir:
         _predictor, _model_version = load_predictor(args.model_dir)
-    if not _sessions.access_key or len(_sessions.access_key) < 32:
+    if _sessions.require_key and len(_sessions.access_key) < 32:
         parser.error("Configure LSP_ACCESS_KEY con al menos 32 caracteres; no se imprime su valor.")
     if "LSP_ALLOWED_ORIGINS" not in os.environ:
         _sessions.allowed_origins = frozenset({f"http://127.0.0.1:{args.port}", f"http://localhost:{args.port}"})
