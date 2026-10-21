@@ -1,0 +1,92 @@
+{
+ "results": [
+  {
+   "name": "initial idle",
+   "pass": true
+  },
+  {
+   "name": "seven states supported",
+   "pass": true
+  },
+  {
+   "name": "start authorized session before camera",
+   "pass": true
+  },
+  {
+   "name": "no key field and no key sent",
+   "pass": true
+  },
+  {
+   "name": "empty frame is not translation",
+   "pass": true
+  },
+  {
+   "name": "v1 frame contract",
+   "pass": true
+  },
+  {
+   "name": "stop releases tracks and preserves confirmed",
+   "pass": true
+  },
+  {
+   "name": "clear explicit",
+   "pass": true
+  },
+  {
+   "name": "Alt+I starts camera",
+   "pass": true
+  },
+  {
+   "name": "Esc stops camera",
+   "pass": true
+  },
+  {
+   "name": "shortcuts ignored while typing",
+   "pass": true
+  },
+  {
+   "name": "Alt+L clears",
+   "pass": true
+  },
+  {
+   "name": "controls have accessible names",
+   "pass": true
+  },
+  {
+   "name": "candidate is not spoken",
+   "pass": true
+  },
+  {
+   "name": "confirmed text spoken once",
+   "pass": true
+  },
+  {
+   "name": "history keeps confirmed text",
+   "pass": true
+  },
+  {
+   "name": "voice failure keeps camera and text",
+   "pass": true
+  },
+  {
+   "name": "voice off keeps text silent",
+   "pass": true
+  },
+  {
+   "name": "stop cancels voice and keeps text",
+   "pass": true
+  },
+  {
+   "name": "no horizontal overflow",
+   "pass": true
+  }
+ ],
+ "cls": 0.044736328125,
+ "viewport": [
+  320,
+  640
+ ],
+ "fixture": true,
+ "browser": "Microsoft Edge 155 headless, macOS",
+ "date": "2026-10-21"
+}
