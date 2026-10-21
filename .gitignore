@@ -39,3 +39,7 @@ secrets.json
 # ngrok (el token se guarda en AppData, no en el repo)
 ngrok.yml
 ngrok.yaml
+
+# Bancos y keypoints derivados de medios sin permiso documentado (MEDIA-DEBT-01)
+models/gestures/*_bank.json
+data/keypoints_media/

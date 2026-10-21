@@ -2,11 +2,11 @@ import math
 from pathlib import Path
 import shutil
 import subprocess
-from config.actions import ACTIONS
+from config.actions import ACTIONS, EXTENDED_ACTIONS
 
 
 def valid_prediction(class_id, confidence, stable_frames):
-    return (type(class_id) is int and 0 <= class_id < len(ACTIONS)
+    return (type(class_id) is int and 0 <= class_id < len(EXTENDED_ACTIONS)
             and type(confidence) in (int, float) and math.isfinite(confidence)
             and 0.85 <= confidence <= 1
             and type(stable_frames) is int and stable_frames >= 10)
@@ -68,4 +68,4 @@ class GlossValidator:
         if self.count < 10 or class_id == self.emitted_class:
             return {"status": "candidate", "stable_frames": self.count, "gloss": None}
         self.emitted_class = class_id
-        return {"status": "accepted", "stable_frames": self.count, "gloss": ACTIONS[class_id]}
+        return {"status": "accepted", "stable_frames": self.count, "gloss": EXTENDED_ACTIONS[class_id]}

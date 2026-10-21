@@ -10,6 +10,7 @@ Arquitectura:
 Uso:
     .\\venv_lsp\\Scripts\\python.exe web_server.py
     .\\venv_lsp\\Scripts\\python.exe web_server.py --port 5000
+    .\\venv_lsp\\Scripts\\python.exe web_server.py --media-demo --media-category all
 """
 
 import sys
@@ -34,6 +35,7 @@ import config.settings as settings
 from src.backend.frame_api import ApiError, register_frame_api
 from src.backend.sessions import SessionManager, register_sessions
 from src.inference.engine import InferenceEngine, load_predictor
+from src.inference.media_bank import MediaSignBankEngine
 from src.inference.pipeline import TranslationPipeline
 from src.inference.wave import WaveGreetingEngine
 
@@ -201,7 +203,7 @@ _HTML = """<!DOCTYPE html>
 # ══════════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def index():
-    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo, gesture_demo=_gesture_demo)
+    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo, gesture_demo=_gesture_demo or _media_demo)
 
 
 @app.route("/process_frame", methods=["POST"])
@@ -235,9 +237,21 @@ def process_v1_jpeg(image_bytes):
 
 _predictor, _model_version = None, None
 _gesture_demo = False
+_media_demo = False
+_media_categories = ("numbers", "alphabet", "months")
+
+
+def _build_session_engine():
+    if _media_demo:
+        return MediaSignBankEngine(categories=_media_categories)
+    if _gesture_demo:
+        return WaveGreetingEngine()
+    return InferenceEngine(_predictor, _model_version)
+
+
 _sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
     os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","),
-    session_factory=lambda: TranslationPipeline(WaveGreetingEngine() if _gesture_demo else InferenceEngine(_predictor, _model_version)))
+    session_factory=lambda: TranslationPipeline(_build_session_engine()))
 
 
 def enrich_features(frame, result, session):
@@ -254,10 +268,16 @@ if __name__ == "__main__":
     parser.add_argument("--host", type=str, default="127.0.0.1")
     parser.add_argument("--model-dir", type=Path, default=None, help="Artefactos locales de procedencia aprobada")
     parser.add_argument("--gesture-demo", action="store_true", help="Regla experimental: agitar mano abierta → Hola")
+    parser.add_argument("--media-demo", action="store_true", help="Banco de prototipos extraído de C:\\proyectos\\media (Números, Abecedario, Meses)")
+    parser.add_argument("--media-category", choices=("all", "numbers", "alphabet", "months"), default="all",
+                        help="Categoría activa en modo --media-demo")
     args = parser.parse_args()
-    if args.gesture_demo and args.model_dir:
-        parser.error("Elija --gesture-demo o --model-dir")
+    if sum(bool(x) for x in (args.gesture_demo, args.media_demo, args.model_dir)) > 1:
+        parser.error("Elija solo uno: --gesture-demo, --media-demo o --model-dir")
     _gesture_demo = args.gesture_demo
+    _media_demo = args.media_demo
+    if args.media_category != "all":
+        _media_categories = (args.media_category,)
     if args.model_dir:
         _predictor, _model_version = load_predictor(args.model_dir)
     if not _sessions.access_key or len(_sessions.access_key) < 32:
