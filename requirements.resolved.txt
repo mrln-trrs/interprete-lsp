@@ -130,7 +130,7 @@ pandas==3.0.6
     # via seaborn
 pillow==13.0.0
     # via matplotlib
-protobuf==4.25.9
+protobuf==5.29.6
     # via
     #   mediapipe
     #   tensorboard
