@@ -1,0 +1,156 @@
+{
+  "$description": "Generado desde static/styles.css por scripts/export_tokens.py; no editar a mano.",
+  "color": {
+    "background": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0118,
+          0.0275,
+          0.0706
+        ],
+        "hex": "#030712"
+      }
+    },
+    "surface": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0667,
+          0.0941,
+          0.1529
+        ],
+        "hex": "#111827"
+      }
+    },
+    "text-primary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "hex": "#ffffff"
+      }
+    },
+    "text-secondary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.8196,
+          0.8353,
+          0.8588
+        ],
+        "hex": "#d1d5db"
+      }
+    },
+    "accent": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6549,
+          0.9529,
+          0.8157
+        ],
+        "hex": "#a7f3d0"
+      }
+    },
+    "accent-secondary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5765,
+          0.7725,
+          0.9922
+        ],
+        "hex": "#93c5fd"
+      }
+    },
+    "text-on-accent": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.0667,
+          0.0941,
+          0.1529
+        ],
+        "hex": "#111827"
+      }
+    },
+    "warning": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9922,
+          0.902,
+          0.5412
+        ],
+        "hex": "#fde68a"
+      }
+    },
+    "danger": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9961,
+          0.7922,
+          0.7922
+        ],
+        "hex": "#fecaca"
+      }
+    },
+    "border": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.3922,
+          0.4549,
+          0.5451
+        ],
+        "hex": "#64748b"
+      }
+    },
+    "bg": {
+      "$value": "{color.background}"
+    },
+    "card": {
+      "$value": "{color.surface}"
+    },
+    "text": {
+      "$value": "{color.text-primary}"
+    },
+    "muted": {
+      "$value": "{color.text-secondary}"
+    },
+    "accent2": {
+      "$value": "{color.accent-secondary}"
+    }
+  },
+  "dimension": {
+    "radius-panel": {
+      "$type": "dimension",
+      "$value": {
+        "value": 12,
+        "unit": "px"
+      }
+    },
+    "space-unit": {
+      "$type": "dimension",
+      "$value": {
+        "value": 4,
+        "unit": "px"
+      }
+    }
+  }
+}
