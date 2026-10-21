@@ -38,6 +38,7 @@ from src.inference.engine import InferenceEngine, load_predictor
 from src.inference.media_bank import MediaSignBankEngine
 from src.inference.pipeline import TranslationPipeline
 from src.inference.wave import WaveGreetingEngine
+from src.hardware.serial_controller import SerialController
 
 app = Flask(__name__)
 
@@ -122,7 +123,7 @@ _HTML = """<!DOCTYPE html>
 <title>LSP — Detección de Manos</title>
 <link rel="stylesheet" href="/static/styles.css"/>
 </head>
-<body data-state="Idle" data-model-ready="{{ 'true' if model_ready else 'false' }}" data-gesture-demo="{{ 'true' if gesture_demo else 'false' }}">
+<body data-state="Idle" data-model-ready="{{ 'true' if model_ready else 'false' }}" data-gesture-demo="{{ 'true' if gesture_demo else 'false' }}" data-hardware="{{ hardware_label or 'futuro opcional' }}">
 
 <header>
   <div class="logo">🤟</div>
@@ -167,7 +168,7 @@ _HTML = """<!DOCTYPE html>
     <label><input id="voice-enabled" type="checkbox" {{ 'checked' if gesture_demo else '' }}/> Leer texto confirmado</label>
     <button id="btn-test-voice" type="button">Probar voz: Hola</button>
   </div>
-  <p id="preflight">Cámara: requiere permiso · Modelo: pendiente · Arduino: futuro opcional</p>
+  <p id="preflight">Cámara: requiere permiso · Modelo: pendiente · Arduino: {{ hardware_label or 'futuro opcional' }}</p>
   <p id="voice-state">Voz desactivada</p>
   <p id="status" role="status" aria-live="polite">Preparado para iniciar</p>
   <section class="output" aria-label="Salida de traducción">
@@ -206,7 +207,7 @@ _HTML = """<!DOCTYPE html>
 @app.route("/")
 def index():
     return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo, gesture_demo=_gesture_demo or _media_demo,
-        key_required=_sessions.require_key)
+        key_required=_sessions.require_key, hardware_label=_hardware_label())
 
 
 @app.route("/process_frame", methods=["POST"])
@@ -242,6 +243,18 @@ _predictor, _model_version = None, None
 _gesture_demo = False
 _media_demo = False
 _media_categories = ("numbers", "alphabet", "months")
+_hardware = None
+
+
+def _hardware_label():
+    if _hardware is None:
+        return None
+    return {"Success": "conectado", "Partial": "sin conexión; el texto sigue en pantalla"}.get(_hardware.state, "desactivado")
+
+
+def _submit_hardware(class_id):
+    if _hardware is not None:
+        _hardware.submit(class_id)
 
 
 def _build_session_engine():
@@ -255,7 +268,7 @@ def _build_session_engine():
 # Sin LSP_ACCESS_KEY la demo no pide clave; con ella, se exige como antes.
 _sessions = SessionManager(os.environ.get("LSP_ACCESS_KEY"),
     os.environ.get("LSP_ALLOWED_ORIGINS", "http://127.0.0.1:5000,http://localhost:5000").split(","),
-    session_factory=lambda: TranslationPipeline(_build_session_engine()),
+    session_factory=lambda: TranslationPipeline(_build_session_engine(), on_gloss=_submit_hardware),
     require_key=bool(os.environ.get("LSP_ACCESS_KEY")))
 
 
@@ -276,6 +289,8 @@ if __name__ == "__main__":
     parser.add_argument("--media-demo", action="store_true", help="Banco de prototipos extraído de C:\\proyectos\\media (Números, Abecedario, Meses)")
     parser.add_argument("--media-category", choices=("all", "numbers", "alphabet", "months"), default="all",
                         help="Categoría activa en modo --media-demo")
+    parser.add_argument("--serial-port", default=None,
+                        help="Arduino opcional (ej. COM3 o /dev/ttyUSB0); sin él no se abre ningún puerto")
     args = parser.parse_args()
     if sum(bool(x) for x in (args.gesture_demo, args.media_demo, args.model_dir)) > 1:
         parser.error("Elija solo uno: --gesture-demo, --media-demo o --model-dir")
@@ -291,6 +306,14 @@ if __name__ == "__main__":
         _sessions.allowed_origins = frozenset({f"http://127.0.0.1:{args.port}", f"http://localhost:{args.port}"})
         if args.host not in ("127.0.0.1", "localhost", "::1"):
             parser.error("Para acceso remoto configure LSP_ALLOWED_ORIGINS explícitamente.")
+
+    if args.serial_port:
+        _hardware = SerialController(args.serial_port, settings.BAUD_RATE)
+        if _hardware.reconnect(attempts=3):
+            _hardware.start()
+            print(f"[OK]   Arduino conectado en {args.serial_port}")
+        else:
+            print(f"[AVISO] Arduino no responde en {args.serial_port} ({_hardware.last_error}); se sigue sin hardware")
 
     print("[INFO] Cargando MediaPipe Hands...")
     _detector = HandDetector()

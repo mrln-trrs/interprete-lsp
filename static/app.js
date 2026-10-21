@@ -82,7 +82,7 @@ setState('Idle', 'Preparado para iniciar');
 document.getElementById('preflight').textContent =
   'Cámara: ' + (navigator.mediaDevices?.getUserMedia ? 'requiere permiso' : 'no disponible') +
   ' · Modelo: ' + (gestureDemo ? 'regla experimental de saludo' : document.body.dataset.modelReady === 'true' ? 'exploratorio' : 'no disponible') +
-  ' · Arduino: futuro opcional';
+  ' · Arduino: ' + (document.body.dataset.hardware || 'futuro opcional');
 
 async function clearText() {
   window.speechSynthesis?.cancel();

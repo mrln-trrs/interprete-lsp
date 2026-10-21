@@ -21,3 +21,7 @@ Host no bloquea captura: cola de una salida más reciente, una trama pendiente, 
 | HW-T07 / idempotencia | Repetir SEQ/contenido; alterar contenido | ACK sin repetición / ERR |
 
 Cada caso registra fixture, setup, esperado, obtenido, fecha, commit y evidencia. Ejecutar primero con simulador/loopback y luego placa real; simulación no certifica integración física. Formato de casos inspirado en documentación de pruebas tradicional e ISO 29119, sin afirmar certificación IEEE 829.
+
+## Precisiones de implementación 2026-10-21
+
+Implementado en HW-01. Respuestas a tramas que no permiten leer SEQ (longitud, caracteres de control, número de campos o SEQ inválida) usan `-` como SEQ: `V1|-|ERR|FORMAT`. Una versión distinta de V1 responde `VERSION` con la SEQ si es legible. Misma SEQ con distinto contenido responde `ERR|FORMAT`. PING reinicia la deduplicación. El host V1 solo transmite el vocabulario base (IDs 0–8); el vocabulario extendido de DEMO-02 no se envía.
