@@ -10,7 +10,7 @@ attrs==26.1.0
     # via mediapipe
 blinker==1.9.0
     # via flask
-certifi==2026.7.22
+certifi==2026.10.19
     # via requests
 cffi==2.1.1
     # via sounddevice
@@ -128,7 +128,7 @@ packaging==26.3
     #   wheel
 pandas==3.0.6
     # via seaborn
-pillow==12.3.0
+pillow==13.0.0
     # via matplotlib
 protobuf==4.25.9
     # via
