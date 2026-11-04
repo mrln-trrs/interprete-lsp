@@ -1,0 +1,78 @@
+{
+  "name": "perusil",
+  "source": "perusil-pucp-dgi156",
+  "license": "CC0-1.0",
+  "dataset": "hdl:20.500.12534/OJYYYS",
+  "criteria": {
+    "min_samples": 30,
+    "min_participants": 10,
+    "max_classes": 20,
+    "window_ms": 1000.0,
+    "split_seed": 42,
+    "excluded_glosses": []
+  },
+  "classes": [
+    "PENSAR",
+    "MUJER",
+    "HOMBRE",
+    "YO",
+    "CAMINAR",
+    "TU",
+    "NO",
+    "DOS",
+    "QUE?",
+    "YA",
+    "CASA",
+    "SI"
+  ],
+  "stats": {
+    "PENSAR": {
+      "clips": 98,
+      "participants": 13
+    },
+    "MUJER": {
+      "clips": 89,
+      "participants": 14
+    },
+    "HOMBRE": {
+      "clips": 73,
+      "participants": 13
+    },
+    "YO": {
+      "clips": 73,
+      "participants": 14
+    },
+    "CAMINAR": {
+      "clips": 48,
+      "participants": 14
+    },
+    "TU": {
+      "clips": 47,
+      "participants": 10
+    },
+    "NO": {
+      "clips": 44,
+      "participants": 11
+    },
+    "DOS": {
+      "clips": 43,
+      "participants": 10
+    },
+    "QUE?": {
+      "clips": 39,
+      "participants": 14
+    },
+    "YA": {
+      "clips": 37,
+      "participants": 11
+    },
+    "CASA": {
+      "clips": 32,
+      "participants": 10
+    },
+    "SI": {
+      "clips": 32,
+      "participants": 12
+    }
+  }
+}

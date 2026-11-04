@@ -8,6 +8,7 @@ __pycache__/
 data/raw_videos/
 data/keypoints/**/*.npy
 data/keypoints/
+data/keypoints_*/
 
 # Modelos binarios grandes (usar Google Drive o Releases para compartirlos)
 models/trained/*.h5
@@ -15,6 +16,8 @@ models/trained/*.keras
 models/trained/*.tflite
 models/trained/label_encoder.json
 models/trained/
+models/perusil/
+models/exp-*/
 
 # Archivos del sistema e IDEs
 .vscode/
