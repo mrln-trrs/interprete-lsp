@@ -1,0 +1,12 @@
+# Uso: docker compose run --rm lsp <comando>   (el repositorio se monta en /app; datos y modelos quedan en el disco)
+services:
+  lsp:
+    build: .
+    image: interprete-lsp:dev
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      LSP_NATIVE_ML_TESTS: "1"
