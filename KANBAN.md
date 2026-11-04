@@ -1,6 +1,6 @@
 # Kanban del intérprete LSP
 
-Actualización: **2026-10-21**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado operativo actualizado con ejecución y CI; las tablas de línea base conservan el inventario previo.
+Actualización: **2026-11-03**. Fuente de seguimiento operativo; requisitos en [plan maestro](docs/PLAN-INTERPRETE-LSP.md). Estado operativo actualizado con ejecución y CI; las tablas de línea base conservan el inventario previo.
 
 ## Estados y definición de terminado
 
@@ -103,6 +103,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 | REL-01 | Done como evaluación del gate: NO APTO para liberar; bloqueos explícitos | [Dictamen y evidencia](docs/execution/REL-01.md) |
 | DEMO-01 | Done para software: saludo geométrico HOLA y TTS, 6 tests nuevos; prueba física del usuario pendiente | [Inicio, alcance y límites](docs/execution/DEMO-01.md) |
 | DEMO-02 | Done para software: banco de números, abecedario y meses (`--media-demo`); procedencia de medios y validación pendientes | [Alcance y límites](docs/execution/DEMO-02.md) |
+| DAT-05 | Código listo (2026-11-03): corpus PeruSIL (CC0, 17 participantes) con plan de 12 glosas y 655 clips, vocabulario configurable, Docker y `scripts/entrenar_perusil.sh`; corrección de espejo en el servidor; 89/89 pruebas. Descarga de videos, importación y entrenamiento pendientes en otra PC | [Decisiones, vocabulario y pasos](docs/execution/DAT-05.md) |
 
 El usuario autorizó implementar siguiendo el plan. Codex asume trabajo técnico; validación lingüística, consentimiento y hardware real conservan responsables externos pendientes. El gate de release no cambia.
 

@@ -4,6 +4,8 @@ Prototipo académico LSP → glosas → español, con vocabulario cerrado de nue
 
 ## Estado y planificación
 
+Para entender cómo funciona el sistema, cómo se entrena el modelo y cómo se ajustan sus parámetros, ver la [guía de funcionamiento y entrenamiento](docs/GUIA-FUNCIONAMIENTO-Y-ENTRENAMIENTO.md).
+
 El [plan maestro](docs/PLAN-INTERPRETE-LSP.md) adapta los [prompts del proyecto](<Prompts Maestros Integrales del Proyecto LSP.md>). El [Kanban](KANBAN.md) registra inicio, alcance, dependencias y límites de cada tarea mediante sus fichas de ejecución. La [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md) mantiene el dictamen **NO APTO para release o exposición pública**: corpus insuficiente y vulnerabilidad alta de protobuf abierta.
 
 Arduino es opcional y viene desactivado: `python web_server.py --serial-port COM3` (o `/dev/ttyUSB0`) activa la salida del protocolo V1 con el firmware de `arduino/`; si el puerto no responde, la demo sigue sin hardware ([HW-01](docs/execution/HW-01.md)). La referencia lingüística inicial es el libro oficial de MINEDU; la revisión con asesor se registra como [deuda técnica](docs/TECHNICAL-DEBT.md). Se aprovechan fuentes gratuitas respetando sus permisos. Las plantillas actuales son exploratorias.
@@ -51,6 +53,18 @@ El primer comando requiere consentimiento real y cámara; la referencia de ejemp
 
 PERUSIL ofrece anotaciones abiertas, pero la cobertura comprobada no satisface las nueve clases. La descarga RGB local está truncada y no se acepta como corpus. No se ejecutó entrenamiento real.
 
+### Entrenamiento con señas reales: corpus PeruSIL (PUCP, CC0)
+
+Mientras no exista el corpus propio de las nueve glosas, el modelo se entrena con PeruSIL: 17 participantes y anotación experta por seña. El plan elige **12 glosas** (PENSAR, MUJER, HOMBRE, YO, CAMINAR, TU, NO, DOS, QUE?, YA, CASA y SI) con 655 clips ([vocabulario](config/vocabularies/perusil.json), [decisiones](docs/execution/DAT-05.md)). En cualquier PC con Docker:
+
+```bash
+docker compose build
+docker compose run --rm lsp bash scripts/entrenar_perusil.sh        # descarga ~1.1 GB, importa, entrena y evalúa
+docker compose run --rm --service-ports lsp python web_server.py --host 0.0.0.0 --model-dir models/perusil
+```
+
+Las descargas se reanudan y la importación salta muestras ya guardadas. Los videos, keypoints y modelos quedan fuera de Git.
+
 ## Verificación
 
 ```bash
@@ -58,7 +72,7 @@ python -m unittest discover -s tests -v
 python -m scripts.check_contrast
 ```
 
-Local 2026-10-21 (Linux aarch64 en OrbStack, `LSP_NATIVE_ML_TESTS=1`, SWI-Prolog y g++): 77 tests aprobados, 0 omitidos; navegador con `python -m scripts.browser_check [--sin-clave]` en Edge headless 20/20 en escritorio y celular (390 y 320 px); tokens con `python -m scripts.export_tokens --check`; latencia con `python -m scripts.benchmark_latency --url http://127.0.0.1:5000`. CI Linux previa: 43 tests aprobados, smoke nativo y contraste aprobado. Windows: 42 aprobados y un test de ML omitido por política local. Las pruebas sintéticas validan software, no precisión lingüística. Navegador, cámara real, voz, Prolog y benchmark de latencia conservan límites explícitos en [QA-01](docs/execution/QA-01.md).
+Local 2026-11-03 (contenedor del `Dockerfile`, Linux aarch64, `LSP_NATIVE_ML_TESTS=1`, SWI-Prolog y g++): 89 tests aprobados, 0 omitidos (2026-10-21: 77); navegador con `python -m scripts.browser_check [--sin-clave]` en Edge headless 20/20 en escritorio y celular (390 y 320 px); tokens con `python -m scripts.export_tokens --check`; latencia con `python -m scripts.benchmark_latency --url http://127.0.0.1:5000`. CI Linux previa: 43 tests aprobados, smoke nativo y contraste aprobado. Windows: 42 aprobados y un test de ML omitido por política local. Las pruebas sintéticas validan software, no precisión lingüística. Navegador, cámara real, voz, Prolog y benchmark de latencia conservan límites explícitos en [QA-01](docs/execution/QA-01.md).
 
 ## Organización
 
