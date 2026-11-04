@@ -226,9 +226,13 @@ def process_v1_jpeg(image_bytes):
         raise ApiError(400, "INVALID_FRAME", "No se pudo decodificar el JPEG.")
     if image.shape[1] > 1280 or image.shape[0] > 720:
         raise ApiError(413, "IMAGE_TOO_LARGE", "La imagen excede el límite permitido.")
+    # Convención mediapipe-selfie-input: la captura local y los importadores de video espejan el cuadro antes
+    # de MediaPipe; aquí se hace lo mismo para que el modelo vea las manos igual que en su entrenamiento.
+    mirrored = cv2.flip(image, 1)
     with _detector_lock:
-        results = _detector.process(image)
-        annotated = _detector.draw(image.copy(), results)
+        results = _detector.process(mirrored)
+        # Se dibuja sobre el cuadro espejado y se devuelve a su orientación original para la vista del cliente.
+        annotated = cv2.flip(_detector.draw(mirrored.copy(), results), 1)
         hands = [{"side": item["label"], "confidence": item["confidence"] / 100}
                  for item in _detector.meta(results)]
         keypoints = _detector.keypoints(results)
