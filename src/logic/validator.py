@@ -5,8 +5,8 @@ import subprocess
 from config.actions import ACTIONS, EXTENDED_ACTIONS
 
 
-def valid_prediction(class_id, confidence, stable_frames):
-    return (type(class_id) is int and 0 <= class_id < len(EXTENDED_ACTIONS)
+def valid_prediction(class_id, confidence, stable_frames, num_classes=len(EXTENDED_ACTIONS)):
+    return (type(class_id) is int and 0 <= class_id < num_classes
             and type(confidence) in (int, float) and math.isfinite(confidence)
             and 0.85 <= confidence <= 1
             and type(stable_frames) is int and stable_frames >= 10)
@@ -29,7 +29,10 @@ def prolog_accepts(class_id, confidence, stable_frames, timeout=0.05):
 
 
 class GlossValidator:
-    def __init__(self):
+    def __init__(self, vocabulary=None):
+        # Las glosas se nombran con el vocabulario del motor; la clase 0 solo es reposo si se llama REPOSO.
+        self.vocabulary = list(vocabulary or EXTENDED_ACTIONS)
+        self.rest_class = 0 if self.vocabulary[0] == "REPOSO" else None
         self.class_id = None
         self.count = 0
         self.emitted_class = None
@@ -52,12 +55,12 @@ class GlossValidator:
             self.reset_candidate()
             return {"status": "rejected", "stable_frames": 0, "gloss": None}
         class_id, confidence = prediction.get("class_id"), prediction.get("confidence")
-        if not valid_prediction(class_id, confidence, 10):
+        if not valid_prediction(class_id, confidence, 10, len(self.vocabulary)):
             self.reset_candidate()
             return {"status": "rejected", "stable_frames": 0, "gloss": None}
         self.count = self.count + 1 if class_id == self.class_id else 1
         self.class_id = class_id
-        if class_id == 0:
+        if class_id == self.rest_class:
             if self.rest_start is None:
                 self.rest_start = timestamp_ms
             if self.count >= 10 and timestamp_ms - self.rest_start >= 500:
@@ -68,4 +71,4 @@ class GlossValidator:
         if self.count < 10 or class_id == self.emitted_class:
             return {"status": "candidate", "stable_frames": self.count, "gloss": None}
         self.emitted_class = class_id
-        return {"status": "accepted", "stable_frames": self.count, "gloss": EXTENDED_ACTIONS[class_id]}
+        return {"status": "accepted", "stable_frames": self.count, "gloss": self.vocabulary[class_id]}

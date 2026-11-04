@@ -14,6 +14,11 @@ from src.dataset.dataset_loader import load_dataset, split_dataset
 from src.dataset.record_samples import atomic_json
 from src.training.model_builder import build_lstm_model
 from src.vision.temporal import FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION
+from src.vocabulary import load_vocabulary
+
+# Valores por defecto de la línea base (docs/ml/TRAINING-PLAN.md); --units, --dropout, etc. los cambian por experimento.
+HYPERPARAMETERS = {"units": 64, "dense_units": 32, "dropout": 0.3, "l2": 1e-4, "learning_rate": 1e-3,
+                   "batch_size": 16, "patience": 10}
 
 
 def classification_metrics(actual, predicted, num_classes=len(ACTIONS)):
@@ -41,20 +46,26 @@ def current_commit():
         return "unknown"  # Sin git (contenedor mínimo); la procedencia queda marcada como desconocida.
 
 
-def prepare_training(root, allow_unreviewed=False):
-    dataset = load_dataset(root, allow_unreviewed)
+def prepare_training(root, allow_unreviewed=False, classes=None):
+    dataset = load_dataset(root, allow_unreviewed, classes)
     splits = split_dataset(dataset)
-    counts = np.bincount(dataset.labels, minlength=len(ACTIONS))
+    counts = np.bincount(dataset.labels, minlength=len(dataset.classes))
     return dataset, splits, {"status": "DRY_RUN", "samples": len(dataset.labels),
-                            "class_counts": dict(zip(ACTIONS, counts.tolist())),
+                            "class_counts": dict(zip(dataset.classes, counts.tolist())),
                             "splits": {name: len(indices) for name, indices in splits.items()},
+                            "participants": {name: int(len(np.unique(dataset.groups[indices])))
+                                             for name, indices in splits.items()},
+                            "excluded": len(dataset.excluded),
                             "manifest_sha256": dataset.manifest_sha256,
                             "minimum_30_per_class": bool(np.all(counts >= 30)),
                             "unreviewed_allowed": allow_unreviewed, "metrics": None}
 
 
-def run_training(dataset, splits, output_dir, epochs=100, evaluate_test=False, allow_unreviewed=False):
-    if np.any(np.bincount(dataset.labels, minlength=len(ACTIONS)) < 30):
+def run_training(dataset, splits, output_dir, epochs=100, evaluate_test=False, allow_unreviewed=False,
+                 hyperparameters=None):
+    classes = list(dataset.classes or ACTIONS)
+    params = {**HYPERPARAMETERS, **(hyperparameters or {})}
+    if np.any(np.bincount(dataset.labels, minlength=len(classes)) < 30):
         raise ValueError("El corpus no alcanza 30 muestras por clase; no se entrena")
     if not 1 <= epochs <= 100:
         raise ValueError("Épocas fuera de rango")
@@ -72,11 +83,14 @@ def run_training(dataset, splits, output_dir, epochs=100, evaluate_test=False, a
     train, validation = splits["train"], splits["validation"]
     for recurrent in ("lstm", "gru"):
         tf.keras.utils.set_random_seed(42)
-        model = build_lstm_model(recurrent=recurrent)
+        model = build_lstm_model(num_classes=len(classes), recurrent=recurrent, dropout=params["dropout"],
+                                 classes=classes, units=params["units"], dense_units=params["dense_units"],
+                                 l2=params["l2"], learning_rate=params["learning_rate"])
         history = model.fit(dataset.features[train], dataset.labels[train],
                             validation_data=(dataset.features[validation], dataset.labels[validation]),
-                            epochs=epochs, batch_size=16,
-                            callbacks=[callbacks.EarlyStopping(monitor="val_loss", patience=10, restore_best_weights=True)], verbose=2)
+                            epochs=epochs, batch_size=params["batch_size"],
+                            callbacks=[callbacks.EarlyStopping(monitor="val_loss", patience=params["patience"],
+                                                               restore_best_weights=True)], verbose=2)
         models[recurrent], histories[recurrent] = model, history.history
     selected = min(histories, key=lambda name: min(histories[name]["val_loss"]))
     model = models[selected]
@@ -85,21 +99,30 @@ def run_training(dataset, splits, output_dir, epochs=100, evaluate_test=False, a
     loaded = tf.keras.models.load_model(artifact, compile=False)
     fixture = dataset.features[validation[:2]]
     np.testing.assert_allclose(model(fixture, training=False).numpy(), loaded(fixture, training=False).numpy(), atol=1e-5, rtol=1e-5)
+    validation_probabilities = model(dataset.features[validation], training=False).numpy()
     metadata = {"schema_version": FEATURE_SCHEMA, "normalization_version": NORMALIZATION_VERSION,
-                "mirror_convention": MIRROR_CONVENTION, "class_order": ACTIONS, "seed": 42,
+                "mirror_convention": MIRROR_CONVENTION, "class_order": classes, "seed": 42,
                 "python": platform.python_version(), "tensorflow": tf.__version__,
                 "commit": current_commit(),
                 "manifest_sha256": dataset.manifest_sha256, "model_sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
-                "selected": selected, "histories": histories, "test_metrics": None,
+                "hyperparameters": {**params, "epochs_max": epochs},
+                "corpus": {"samples": int(len(dataset.labels)),
+                           "participants": {name: int(len(np.unique(dataset.groups[indices])))
+                                            for name, indices in splits.items()},
+                           "sources": sorted({entry.get("source", "") for entry in dataset.samples})},
+                "selected": selected, "histories": histories,
+                "validation_metrics": classification_metrics(dataset.labels[validation],
+                                                             np.argmax(validation_probabilities, axis=1), len(classes)),
+                "test_metrics": None,
                 "exploratory": allow_unreviewed, "release_approved": False}
     if evaluate_test:
         atomic_json(test_gate, {"manifest_sha256": dataset.manifest_sha256, "status": "opened"})
         test = splits["test"]
         probabilities = model(dataset.features[test], training=False).numpy()
-        metadata["test_metrics"] = classification_metrics(dataset.labels[test], np.argmax(probabilities, axis=1))
-        majority = int(np.bincount(dataset.labels[train], minlength=len(ACTIONS)).argmax())
-        metadata["majority_baseline"] = classification_metrics(dataset.labels[test], np.full(len(test), majority))
-    atomic_json(output_dir / "label_encoder.json", {"classes": ACTIONS, "schema_version": FEATURE_SCHEMA})
+        metadata["test_metrics"] = classification_metrics(dataset.labels[test], np.argmax(probabilities, axis=1), len(classes))
+        majority = int(np.bincount(dataset.labels[train], minlength=len(classes)).argmax())
+        metadata["majority_baseline"] = classification_metrics(dataset.labels[test], np.full(len(test), majority), len(classes))
+    atomic_json(output_dir / "label_encoder.json", {"classes": classes, "schema_version": FEATURE_SCHEMA})
     atomic_json(output_dir / "metadata.json", metadata)
     return metadata
 
@@ -108,17 +131,30 @@ def main():
     parser = argparse.ArgumentParser(description="Baseline LSP reproducible, test reservado")
     parser.add_argument("--root", type=Path, default=Path("data/keypoints"))
     parser.add_argument("--output", type=Path, default=Path("models/trained"))
+    parser.add_argument("--vocabulary", type=Path, default=None,
+                        help="JSON {\"classes\": [...]} del corpus; por defecto las 9 glosas base")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--allow-unreviewed", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--evaluate-test", action="store_true")
+    for name, value in HYPERPARAMETERS.items():
+        parser.add_argument(f"--{name.replace('_', '-')}", type=type(value), default=value)
     args = parser.parse_args()
+    hyperparameters = {name: getattr(args, name) for name in HYPERPARAMETERS}
     try:
-        dataset, splits, plan = prepare_training(args.root, args.allow_unreviewed)
+        if not 0 <= hyperparameters["dropout"] < 1 or min(hyperparameters["units"], hyperparameters["dense_units"],
+                                                           hyperparameters["batch_size"], hyperparameters["patience"]) < 1:
+            raise ValueError("Hiperparámetros fuera de rango")
+        dataset, splits, plan = prepare_training(args.root, args.allow_unreviewed, load_vocabulary(args.vocabulary))
         if args.dry_run:
-            print(json.dumps(plan, indent=2))
+            print(json.dumps(plan, indent=2, ensure_ascii=False))
             return 0
-        run_training(dataset, splits, args.output, args.epochs, args.evaluate_test, args.allow_unreviewed)
+        metadata = run_training(dataset, splits, args.output, args.epochs, args.evaluate_test, args.allow_unreviewed,
+                                hyperparameters)
+        summary = {"selected": metadata["selected"],
+                   "validation_macro_f1": round(metadata["validation_metrics"]["macro_f1"], 4),
+                   "test_macro_f1": metadata["test_metrics"] and round(metadata["test_metrics"]["macro_f1"], 4)}
+        print(json.dumps(summary, ensure_ascii=False))
         print("Artefactos guardados; el release requiere auditoría y revisión lingüística")
         return 0
     except (ValueError, RuntimeError, OSError) as error:

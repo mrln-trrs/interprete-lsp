@@ -6,6 +6,7 @@ import numpy as np
 from config.actions import ACTIONS
 from src.vision.normalization import normalize_keypoints_vector
 from src.vision.temporal import FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION, resample_sequence
+from src.vocabulary import validate_classes
 
 
 def validate_artifacts(folder):
@@ -14,8 +15,10 @@ def validate_artifacts(folder):
     encoder = json.loads((folder / "label_encoder.json").read_text(encoding="utf-8"))
     expected = (FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION)
     actual = tuple(metadata.get(key) for key in ("schema_version", "normalization_version", "mirror_convention"))
-    if actual != expected or metadata.get("class_order") != ACTIONS or encoder.get("classes") != ACTIONS or encoder.get("schema_version") != FEATURE_SCHEMA:
+    # El vocabulario lo fija el modelo (9 glosas base o el de un corpus como PeruSIL); encoder y metadata deben coincidir.
+    if actual != expected or metadata.get("class_order") != encoder.get("classes") or encoder.get("schema_version") != FEATURE_SCHEMA:
         raise ValueError("Modelo/encoder/esquema incompatibles")
+    validate_classes(encoder.get("classes"))
     artifact = folder / "lsp_model.keras"
     if hashlib.sha256(artifact.read_bytes()).hexdigest() != metadata.get("model_sha256"):
         raise ValueError("Checksum del modelo inválido")
@@ -29,14 +32,22 @@ def load_predictor(folder):
         model = tf.keras.models.load_model(artifact, compile=False)
     except ImportError as error:
         raise RuntimeError("ENV-03: runtime Keras no disponible") from error
-    if tuple(model.input_shape[1:]) != (30, 126) or model.output_shape[-1] != len(ACTIONS):
+    classes = metadata["class_order"]
+    if tuple(model.input_shape[1:]) != (30, 126) or model.output_shape[-1] != len(classes):
         raise ValueError("Forma del modelo incompatible")
-    return lambda sequence: model(sequence[None, ...], training=False).numpy()[0], metadata["model_sha256"]
+
+    def predictor(sequence):
+        return model(sequence[None, ...], training=False).numpy()[0]
+    predictor.classes = classes  # Orden de clases del modelo, para nombrar las glosas
+    return predictor, metadata["model_sha256"]
 
 
 class InferenceEngine:
-    def __init__(self, predictor=None, model_version=None):
+    def __init__(self, predictor=None, model_version=None, classes=None):
         self.predictor, self.model_version = predictor, model_version
+        self.classes = list(classes or getattr(predictor, "classes", None) or ACTIONS)
+        # Sin clase REPOSO no hay pausa que cierre la frase: cada glosa aceptada se muestra al momento.
+        self.immediate_translation = self.classes[0] != "REPOSO"
         self.frames = deque(maxlen=65)
         self.last_frame_id = -1
         self.last_timestamp = -1
@@ -64,11 +75,11 @@ class InferenceEngine:
         except ValueError:
             return {"state": "Partial", "reason": "TEMPORAL_GAP" if gap else "WINDOW_INCOMPLETE", "prediction": None}
         probabilities = np.asarray(self.predictor(sequence), dtype=float)
-        if probabilities.shape != (len(ACTIONS),) or not np.isfinite(probabilities).all() or np.any(probabilities < 0) or np.any(probabilities > 1) or abs(probabilities.sum() - 1) > 1e-3:
+        if probabilities.shape != (len(self.classes),) or not np.isfinite(probabilities).all() or np.any(probabilities < 0) or np.any(probabilities > 1) or abs(probabilities.sum() - 1) > 1e-3:
             raise ValueError("Probabilidades de modelo inválidas")
         winning = int(probabilities.argmax())
         if np.count_nonzero(probabilities == probabilities[winning]) != 1:
             return {"state": "Partial", "reason": "AMBIGUOUS", "prediction": None}
         return {"state": "Success", "reason": None,
-                "prediction": {"class_id": winning, "gloss": ACTIONS[winning], "confidence": float(probabilities[winning]),
+                "prediction": {"class_id": winning, "gloss": self.classes[winning], "confidence": float(probabilities[winning]),
                                "model_version": self.model_version, "frame_id": frame_id, "status": "candidate"}}

@@ -7,8 +7,10 @@ class TranslationPipeline:
     def __init__(self, engine, on_gloss=None):
         self.engine = engine
         self.on_gloss = on_gloss  # Salida opcional (Arduino): recibe el ID solo después de la validación lógica
-        self.validator = GlossValidator()
-        self.buffer = TranslationBuffer()
+        # Un modelo con vocabulario propio (p. ej. PeruSIL) expone sus clases; los demás motores usan el extendido.
+        vocabulary = getattr(engine, "classes", None)
+        self.validator = GlossValidator(vocabulary)
+        self.buffer = TranslationBuffer(vocabulary)
         self.confirmed_text = ""
 
     def push(self, frame_id, timestamp_ms, raw_vector):

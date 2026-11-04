@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 from config.actions import ACTIONS
 from src.vision.temporal import FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION
+from src.vocabulary import gloss_folder, load_vocabulary
 
 
 @dataclass
@@ -20,9 +21,11 @@ class Dataset:
     samples: list
     excluded: list
     manifest_sha256: str
+    classes: list = None
 
 
-def load_dataset(root="data/keypoints", allow_unreviewed=False):
+def load_dataset(root="data/keypoints", allow_unreviewed=False, classes=None):
+    classes = list(classes) if classes is not None else list(ACTIONS)
     root = Path(root).resolve()
     manifest_path = root / "manifest.json"
     if not manifest_path.is_file():
@@ -46,7 +49,7 @@ def load_dataset(root="data/keypoints", allow_unreviewed=False):
             path = (root / relative).resolve()
             if not path.is_relative_to(root) or Path(relative).is_absolute() or path.suffix != ".npy":
                 raise ValueError("Ruta no autorizada")
-            if entry["gloss"] not in ACTIONS or path.parent.name != entry["gloss"]:
+            if entry["gloss"] not in classes or path.parent.name != gloss_folder(entry["gloss"]):
                 raise ValueError("Etiqueta/ruta incompatible")
             if (entry["schema_version"], entry["normalization_version"], entry["mirror_convention"]) != (FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION):
                 raise ValueError("Esquema o lateralidad incompatibles")
@@ -67,7 +70,7 @@ def load_dataset(root="data/keypoints", allow_unreviewed=False):
             if abs(timestamps[-1] - timestamps[0] - 1000) > 1e-3 or float(entry["max_source_gap_ms"]) > 200:
                 raise ValueError("Cobertura/gaps incompatibles")
             features.append(sequence)
-            labels.append(ACTIONS.index(entry["gloss"]))
+            labels.append(classes.index(entry["gloss"]))
             groups.append(entry["participant_id"])
             entries.append(entry)
         except (KeyError, TypeError, ValueError, OSError) as error:
@@ -75,10 +78,11 @@ def load_dataset(root="data/keypoints", allow_unreviewed=False):
     if not features:
         raise ValueError(f"Empty: ninguna muestra válida; excluidas {len(excluded)}")
     return Dataset(np.stack(features), np.asarray(labels, dtype=np.int64), np.asarray(groups), entries,
-                   excluded, hashlib.sha256(raw).hexdigest())
+                   excluded, hashlib.sha256(raw).hexdigest(), classes)
 
 
 def split_dataset(dataset, seed=42):
+    num_classes = len(dataset.classes or ACTIONS)
     groups = np.unique(dataset.groups)
     if len(groups) < 5:
         raise ValueError("Se requieren al menos cinco participantes/grupos independientes")
@@ -89,7 +93,7 @@ def split_dataset(dataset, seed=42):
     result = {}
     for name, selected_groups in zip(("train", "validation", "test"), partitions):
         indices = np.flatnonzero(np.isin(dataset.groups, selected_groups))
-        if set(dataset.labels[indices].tolist()) != set(range(len(ACTIONS))):
+        if set(dataset.labels[indices].tolist()) != set(range(num_classes)):
             raise ValueError(f"Cobertura insuficiente de clases en {name}; recopilar más datos")
         result[name] = indices
     return result
@@ -99,9 +103,10 @@ def main():
     parser = argparse.ArgumentParser(description="Validar corpus LSP y particiones por persona")
     parser.add_argument("--root", type=Path, default=Path("data/keypoints"))
     parser.add_argument("--allow-unreviewed", action="store_true", help="Solo prototipo, no release")
+    parser.add_argument("--vocabulary", type=Path, default=None, help="JSON {\"classes\": [...]}; por defecto las 9 glosas base")
     args = parser.parse_args()
     try:
-        dataset = load_dataset(args.root, args.allow_unreviewed)
+        dataset = load_dataset(args.root, args.allow_unreviewed, load_vocabulary(args.vocabulary))
         splits = split_dataset(dataset)
         print(json.dumps({"shape": list(dataset.features.shape), "excluded": len(dataset.excluded),
                           "manifest_sha256": dataset.manifest_sha256,

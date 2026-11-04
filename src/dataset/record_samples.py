@@ -15,6 +15,7 @@ import uuid
 import numpy as np
 from config.actions import ACTIONS
 from src.vision.temporal import FEATURE_SCHEMA, NORMALIZATION_VERSION, MIRROR_CONVENTION, resample_sequence
+from src.vocabulary import gloss_folder
 
 
 @contextmanager
@@ -47,12 +48,17 @@ def atomic_json(path, value):
 
 
 def save_sample(root, gloss, vectors, timestamps_ms, participant_id, session_id, consent_ref,
-                source="local-consented", mirror_convention=MIRROR_CONVENTION):
-    if gloss not in ACTIONS:
+                source="local-consented", mirror_convention=MIRROR_CONVENTION, allowed_glosses=ACTIONS,
+                quality_status="unreviewed", review_ref=None, origin=None):
+    """Guarda una muestra (30,126). allowed_glosses permite vocabularios de corpus externos;
+    quality_status="reviewed" solo con review_ref (quién o qué anotación la valida)."""
+    if gloss not in allowed_glosses:
         raise ValueError("Glosa no permitida")
     identifiers = (participant_id, session_id, consent_ref, source)
     if any(not isinstance(value, str) or not value.strip() or len(value) > 256 for value in identifiers):
         raise ValueError("Se requieren referencias de participante, sesión, permiso y origen")
+    if quality_status not in ("unreviewed", "reviewed") or (quality_status == "reviewed" and not review_ref):
+        raise ValueError("Una muestra revisada requiere referencia de revisión")
     sequence, grid = resample_sequence(vectors, timestamps_ms)
     root = Path(root).resolve()
     with recording_lock(root):
@@ -61,7 +67,7 @@ def save_sample(root, gloss, vectors, timestamps_ms, participant_id, session_id,
         if not isinstance(manifest, dict) or manifest.get("version") != 1 or not isinstance(manifest.get("samples"), list):
             raise ValueError("Manifiesto inválido")
         sample_id = uuid.uuid4().hex
-        relative_path = f"{gloss}/seq_{sample_id}.npy"
+        relative_path = f"{gloss_folder(gloss)}/seq_{sample_id}.npy"
         destination = (root / relative_path).resolve()
         if not destination.is_relative_to(root):
             raise ValueError("Ruta fuera del dataset")
@@ -83,7 +89,11 @@ def save_sample(root, gloss, vectors, timestamps_ms, participant_id, session_id,
                      "mirror_convention": mirror_convention, "timestamps_ms": grid.tolist(), "duration_ms": 1000,
                      "capture_fps": (len(timestamps) - 1) * 1000 / (timestamps[-1] - timestamps[0]),
                      "max_source_gap_ms": float(np.diff(timestamps).max()), "shape": [30, 126], "dtype": "float32",
-                     "checksum_sha256": checksum, "quality_status": "unreviewed", "split": None}
+                     "checksum_sha256": checksum, "quality_status": quality_status, "split": None}
+            if review_ref:
+                entry["review_ref"] = review_ref
+            if origin:
+                entry["origin"] = origin  # Ubicación en la fuente (video e intervalo), para auditar la muestra
             manifest["samples"].append(entry)
             atomic_json(manifest_path, manifest)
             committed = True

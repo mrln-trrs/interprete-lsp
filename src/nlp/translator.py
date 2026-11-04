@@ -70,28 +70,41 @@ def _compose_dynamic_template(filtered):
     return None
 
 
-def translate_glosses(glosses):
-    if not isinstance(glosses, (list, tuple)) or len(glosses) > 20 or any(gloss not in EXTENDED_ACTIONS for gloss in glosses):
+def _literal_text(filtered):
+    """Glosas de un vocabulario de modelo sin plantilla: se muestran tal cual, marcadas como literales."""
+    words = [gloss.replace("_", " ").lower() for gloss in filtered]
+    words[0] = words[0].capitalize()
+    return " ".join(words) + ("" if words[-1].endswith("?") else ".")
+
+
+def translate_glosses(glosses, vocabulary=None):
+    allowed = set(EXTENDED_ACTIONS) | set(vocabulary or ())
+    if not isinstance(glosses, (list, tuple)) or len(glosses) > 20 or any(gloss not in allowed for gloss in glosses):
         raise ValueError("Secuencia de glosas no permitida")
     filtered = tuple(gloss for gloss in glosses if gloss != "REPOSO")
     text = _compose_dynamic_template(filtered)
+    literal = not text and any(gloss not in EXTENDED_ACTIONS for gloss in filtered)
+    if literal:
+        text = _literal_text(filtered)
     return {
         "text": text,
         "source_glosses": list(filtered),
         "glossary_version": GLOSSARY_VERSION,
-        "status": "Empty" if not filtered else "Success" if text else "Partial",
-        "message": None if text or not filtered else "Sin plantilla disponible",
+        "status": "Empty" if not filtered else "Partial" if literal or not text else "Success",
+        "message": "Glosas sin plantilla revisada (lectura literal)" if literal
+                   else None if text or not filtered else "Sin plantilla disponible",
         "linguistic_review": "pending",
     }
 
 
 class TranslationBuffer:
-    def __init__(self):
+    def __init__(self, vocabulary=None):
+        self.vocabulary = list(vocabulary or ())
         self.glosses = []
         self.started_at_ms = None
 
     def append(self, gloss, timestamp_ms):
-        if gloss not in EXTENDED_ACTIONS or gloss == "REPOSO":
+        if (gloss not in EXTENDED_ACTIONS and gloss not in self.vocabulary) or gloss == "REPOSO":
             raise ValueError("Solo glosas confirmadas no-REPOSO")
         if len(self.glosses) >= 20:
             raise ValueError("Límite de glosas; despachar antes de añadir")
@@ -103,7 +116,7 @@ class TranslationBuffer:
         return len(self.glosses) >= 20 or (self.started_at_ms is not None and timestamp_ms - self.started_at_ms >= 10000)
 
     def flush(self):
-        result = translate_glosses(self.glosses)
+        result = translate_glosses(self.glosses, self.vocabulary)
         self.glosses = []
         self.started_at_ms = None
         return result
