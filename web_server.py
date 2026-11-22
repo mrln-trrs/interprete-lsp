@@ -35,6 +35,7 @@ import config.settings as settings
 from src.backend.frame_api import ApiError, register_frame_api
 from src.backend.sessions import SessionManager, register_sessions
 from src.inference.engine import InferenceEngine, load_predictor
+from src.inference.handshape import HandshapeSentenceEngine
 from src.inference.media_bank import MediaSignBankEngine
 from src.inference.pipeline import TranslationPipeline
 from src.inference.wave import WaveGreetingEngine
@@ -175,7 +176,7 @@ _HTML = """<!DOCTYPE html>
     <p>Candidato: <span id="candidate">—</span></p>
     <p>Glosas pendientes: <span id="pending-glosses">—</span></p>
     <p>Texto confirmado: <span id="confirmed-text">—</span></p>
-    <p id="model-state">{{ 'Saludo experimental: abre la mano y agítala de lado a lado 2–3 veces. Baja la mano un segundo para repetir.' if gesture_demo else 'Reconocimiento pendiente: modelo no disponible' }}</p>
+    <p id="model-state">{{ 'Frases con gestos: índice = YO · índice y medio = QUERER · tres dedos = AGUA · puño = AYUDA · meñique = POR FAVOR · índice y meñique = GRACIAS · mano abierta agitándose = HOLA. Sostén cada gesto un segundo y baja la mano para traducir la frase.' if sign_demo else 'Saludo experimental: abre la mano y agítala de lado a lado 2–3 veces. Baja la mano un segundo para repetir.' if gesture_demo else 'Reconocimiento pendiente: modelo no disponible' }}</p>
   </section>
   <ol id="history" class="history" aria-label="Historial de texto confirmado"></ol>
   <!-- Stats -->
@@ -206,7 +207,8 @@ _HTML = """<!DOCTYPE html>
 # ══════════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def index():
-    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo, gesture_demo=_gesture_demo or _media_demo,
+    return render_template_string(_HTML, model_ready=_predictor is not None or _gesture_demo or _media_demo or _sign_demo, gesture_demo=_gesture_demo or _media_demo or _sign_demo,
+        sign_demo=_sign_demo,
         key_required=_sessions.require_key, hardware_label=_hardware_label())
 
 
@@ -246,6 +248,7 @@ def process_v1_jpeg(image_bytes):
 _predictor, _model_version = None, None
 _gesture_demo = False
 _media_demo = False
+_sign_demo = False
 _media_categories = ("numbers", "alphabet", "months")
 _hardware = None
 
@@ -262,6 +265,8 @@ def _submit_hardware(class_id):
 
 
 def _build_session_engine():
+    if _sign_demo:
+        return HandshapeSentenceEngine()
     if _media_demo:
         return MediaSignBankEngine(categories=_media_categories)
     if _gesture_demo:
@@ -293,13 +298,16 @@ if __name__ == "__main__":
     parser.add_argument("--media-demo", action="store_true", help="Banco de prototipos extraído de C:\\proyectos\\media (Números, Abecedario, Meses)")
     parser.add_argument("--media-category", choices=("all", "numbers", "alphabet", "months"), default="all",
                         help="Categoría activa en modo --media-demo")
+    parser.add_argument("--sign-demo", action="store_true",
+                        help="Frases con gestos definidos a mano: YO, QUERER, AGUA, AYUDA, POR_FAVOR, GRACIAS y HOLA")
     parser.add_argument("--serial-port", default=None,
                         help="Arduino opcional (ej. COM3 o /dev/ttyUSB0); sin él no se abre ningún puerto")
     args = parser.parse_args()
-    if sum(bool(x) for x in (args.gesture_demo, args.media_demo, args.model_dir)) > 1:
-        parser.error("Elija solo uno: --gesture-demo, --media-demo o --model-dir")
+    if sum(bool(x) for x in (args.gesture_demo, args.media_demo, args.sign_demo, args.model_dir)) > 1:
+        parser.error("Elija solo uno: --gesture-demo, --media-demo, --sign-demo o --model-dir")
     _gesture_demo = args.gesture_demo
     _media_demo = args.media_demo
+    _sign_demo = args.sign_demo
     if args.media_category != "all":
         _media_categories = (args.media_category,)
     if args.model_dir:

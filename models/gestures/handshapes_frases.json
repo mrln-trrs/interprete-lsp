@@ -1,0 +1,16 @@
+{
+  "version": "handshapes-frases-v1",
+  "kind": "geometric_rule",
+  "note": "Gestos de demostración definidos a mano por dedos extendidos (índice, medio, anular, meñique). No son señas LSP validadas ni probabilidades calibradas. HOLA usa wave_hola.json (mano abierta que se agita); la mano abierta quieta no produce glosa.",
+  "cut": 1.03,
+  "spread": 0.18,
+  "min_palm": 0.03,
+  "shapes": {
+    "1000": "YO",
+    "1100": "QUERER",
+    "1110": "AGUA",
+    "0000": "AYUDA",
+    "0001": "POR_FAVOR",
+    "1001": "GRACIAS"
+  }
+}

@@ -34,6 +34,18 @@ TEMPLATES = {
     ("AGUA",): "Agua.",
     ("BUENOS_DIAS",): "Buenos días.",
     ("YO", "QUERER", "AGUA"): "Yo quiero agua.",
+    # Frases de la demo de gestos (handshapes_frases.json)
+    ("QUERER", "AGUA"): "Quiero agua.",
+    ("YO", "QUERER", "AYUDA"): "Yo quiero ayuda.",
+    ("QUERER", "AYUDA"): "Quiero ayuda.",
+    ("AGUA", "POR_FAVOR"): "Agua, por favor.",
+    ("AYUDA", "POR_FAVOR"): "Ayuda, por favor.",
+    ("YO", "QUERER", "AGUA", "POR_FAVOR"): "Yo quiero agua, por favor.",
+    ("YO", "QUERER", "AYUDA", "POR_FAVOR"): "Yo quiero ayuda, por favor.",
+    ("HOLA", "YO", "QUERER", "AGUA"): "Hola, yo quiero agua.",
+    ("HOLA", "YO", "QUERER", "AYUDA"): "Hola, yo quiero ayuda.",
+    ("HOLA", "GRACIAS"): "Hola, gracias.",
+    ("AGUA", "GRACIAS"): "Agua, gracias.",
 }
 
 for _num, _name in NUMBER_NAMES.items():
