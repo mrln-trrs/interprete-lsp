@@ -81,7 +81,7 @@ Prioridad P0 antes de exposición o datos reales; P1 para MVP; P2 salidas opcion
 |---|---|---|
 | PLN-01 | Done (revisión técnica y autorización de implementación) | [Inicio, alcance y límites](docs/execution/PLN-01.md) |
 | ENV-03 | Done para Linux CI; Windows parcial por DLL SSL/optree | [Entorno, pruebas y límites](docs/execution/ENV-03.md) |
-| SEC-09 | Done como auditoría; 2026-10-21 pillow 13 y certifi corregidos; secretos: historial limpio; protobuf alto sigue abierto y bloquea release | [Alcance y evidencia](docs/execution/SEC-09.md) |
+| SEC-09 | Done como auditoría; 2026-10-21 pillow 13 y certifi corregidos; secretos: historial limpio; protobuf resuelto 2026-11-26 (SEC-DEBT-01) | [Alcance y evidencia](docs/execution/SEC-09.md) |
 | API-01 | Done: contrato v1, validación y conexión; acceso cerrado hasta SEC-10 | [Contrato y seis pruebas](docs/execution/API-01.md) |
 | SEC-10 | Done: sesiones/cuotas/aislamiento; clave opcional para demo local (2026-10-21); demo remota aún no aprobada | [Controles, pruebas y límites](docs/execution/SEC-10.md) |
 | VIS-04 | Done para prototipo; asesor/ablación/cámara quedan como deuda | [Esquema provisional y pruebas](docs/execution/VIS-04.md) |

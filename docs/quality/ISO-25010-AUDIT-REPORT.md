@@ -17,7 +17,7 @@ Secret scan del historial alcanzable actualizado sin coincidencias. SCA/SBOM con
 | Compatibilidad | Linux nativo PASS; Windows ML parcial; navegador/Prolog pendientes |
 | Interacción | Siete estados, foco y controles implementados; contraste de textos ≥7:1; CLS/lector/zoom pendientes |
 | Fiabilidad | Recuperación y aislamiento cubiertos por suite; experiencia real de cámara/red pendiente |
-| Seguridad | DTO estricto, origen, sesión, límites y errores probados; protobuf alto bloquea release |
+| Seguridad | DTO estricto, origen, sesión, límites y errores probados; protobuf corregido 2026-11-26 (SEC-DEBT-01 cerrado) |
 | Mantenibilidad | Módulos, locks, CI y trazabilidad presentes; integración operativa aún exploratoria |
 | Flexibilidad | Modelo explícito y voz opcional; Arduino diferido por usuario |
 | Seguridad operacional | Rechazo de incertidumbre y ausencia de texto inventado; falsas emisiones reales sin evaluar |
@@ -26,9 +26,11 @@ Secret scan del historial alcanzable actualizado sin coincidencias. SCA/SBOM con
 
 1. DAT-03: obtener corpus autorizado con cobertura de nueve clases, cuotas y participantes suficientes. Anotaciones PERUSIL inspeccionadas; tar RGB truncado no aceptado.
 2. MOD-02/VAL-03: entrenar y comparar modelos con partición por persona, evaluación independiente y métricas reales.
-3. SEC-DEBT-01: resolver compatibilidad de protobuf corregido y repetir SCA de todos los perfiles incluidos.
+3. SEC-DEBT-01: cerrado el 2026-11-26 (protobuf 5.29.6, mediapipe 0.10.35 con Tasks API; pip-audit sin hallazgos en ambos locks). Pendiente validar el lock Windows en Windows.
 4. UX/QA: navegador, accesibilidad, voz, cámara y benchmark reales. La revisión automática rechazó el lanzamiento de Edge; no se atribuyen resultados al harness.
 5. LOG-01: runtime y paridad Prolog pendientes; Python es la referencia ejecutada.
 6. Validación lingüística: MINEDU como referencia inicial; asesor futuro según instrucción del usuario. Esa deuda permite avanzar el prototipo, pero no acredita aceptación lingüística.
 
 Arduino no integra este candidato y no bloquea el prototipo. No se han fabricado consentimientos, corpus, precisión ni validaciones humanas. El gate se reevalúa al resolver estos puntos y actualizar la matriz VAL. Demo local exploratoria limitada a capacidades probadas; el dictamen no autoriza despliegue público.
+
+Actualización 2026-11-26: SEC-DEBT-01 cerrado (ver SEC-09); el dictamen sigue NO APTO por corpus, entrenamiento y validación con personas.

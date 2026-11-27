@@ -30,7 +30,7 @@ Evidencia común: [CI Linux](https://github.com/mrln-trrs/interprete-lsp/actions
 | VAL-02 | Captura atómica, loader y split por persona probados | Corpus/cuotas reales pendientes |
 | VAL-03 | LSTM/GRU nativo, reglas, plantillas y pipeline probados | Entrenamiento, precisión y asesor pendientes |
 | VAL-04 | Tokens/contraste, siete estados y voz local implementados | Browser/CLS/voz pendientes; Arduino excluido |
-| VAL-05 | Contrato/sesiones y scans; dictamen trazado | NO APTO: protobuf alto y gates pendientes |
+| VAL-05 | Contrato/sesiones y scans; dictamen trazado | NO APTO: gates pendientes (protobuf resuelto 2026-11-26) |
 | SEC-01/02/03/05/07 | API y sesiones: autorización/origen, DTO, errores, cuotas, aislamiento | PASS en alcance automatizado local; despliegue pendiente |
 | SEC-04 | Secrets sin coincidencias; no exposición remota nueva | TLS/despliegue y SCA sin altas pendientes |
 | SEC-06 | Clases/plantillas acotadas; rechazo y no modelo explícitos | Prolog real pendiente; Arduino excluido |

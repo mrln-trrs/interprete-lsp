@@ -6,7 +6,7 @@ Prototipo académico LSP → glosas → español, con vocabulario cerrado de nue
 
 Para entender cómo funciona el sistema, cómo se entrena el modelo y cómo se ajustan sus parámetros, ver la [guía de funcionamiento y entrenamiento](docs/GUIA-FUNCIONAMIENTO-Y-ENTRENAMIENTO.md).
 
-El [plan maestro](docs/PLAN-INTERPRETE-LSP.md) adapta los [prompts del proyecto](<Prompts Maestros Integrales del Proyecto LSP.md>). El [Kanban](KANBAN.md) registra inicio, alcance, dependencias y límites de cada tarea mediante sus fichas de ejecución. La [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md) mantiene el dictamen **NO APTO para release o exposición pública**: corpus insuficiente y vulnerabilidad alta de protobuf abierta.
+El [plan maestro](docs/PLAN-INTERPRETE-LSP.md) adapta los [prompts del proyecto](<Prompts Maestros Integrales del Proyecto LSP.md>). El [Kanban](KANBAN.md) registra inicio, alcance, dependencias y límites de cada tarea mediante sus fichas de ejecución. La [auditoría](docs/quality/ISO-25010-AUDIT-REPORT.md) mantiene el dictamen **NO APTO para release o exposición pública**: corpus insuficiente (la vulnerabilidad alta de protobuf quedó resuelta el 2026-11-26, SEC-DEBT-01).
 
 Arduino es opcional y viene desactivado: `python web_server.py --serial-port COM3` (o `/dev/ttyUSB0`) activa la salida del protocolo V1 con el firmware de `arduino/`; si el puerto no responde, la demo sigue sin hardware ([HW-01](docs/execution/HW-01.md)). La referencia lingüística inicial es el libro oficial de MINEDU; la revisión con asesor se registra como [deuda técnica](docs/TECHNICAL-DEBT.md). Se aprovechan fuentes gratuitas respetando sus permisos. Las plantillas actuales son exploratorias.
 

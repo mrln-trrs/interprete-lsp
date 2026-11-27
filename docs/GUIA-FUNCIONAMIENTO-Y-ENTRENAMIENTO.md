@@ -444,4 +444,4 @@ El 100 % se explica porque cada clase sintética es una postura distinta y separ
 - El vector usa solo las manos: no ve la cara, el cuerpo ni dónde está la mano respecto al cuerpo (VIS-DEBT-01). Señas que dependen de eso se confunden.
 - El validador del pipeline usa la versión en Python; `lsp_rules.pl` (Prolog) se usa en las pruebas de paridad, no en cada cuadro.
 - En Windows, Keras no carga por la política de control de aplicaciones: hay que entrenar en Linux o en el contenedor.
-- Seguridad: queda abierta una vulnerabilidad alta de `protobuf`; el proyecto sigue **NO APTO para publicación** (`docs/quality/ISO-25010-AUDIT-REPORT.md`).
+- Seguridad: la vulnerabilidad alta de `protobuf` se resolvió el 2026-11-26 (protobuf 5.29.6, MediaPipe Tasks API); el proyecto sigue **NO APTO para publicación** por corpus y validación pendientes (`docs/quality/ISO-25010-AUDIT-REPORT.md`).
