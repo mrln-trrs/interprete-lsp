@@ -27,7 +27,6 @@ if str(PROJECT_ROOT) not in sys.path:
 
 os.environ.setdefault("OPENCV_IO_MAX_IMAGE_PIXELS", str(1280 * 720))
 import cv2
-import mediapipe as mp
 import numpy as np
 from flask import Flask, Response, render_template_string, jsonify, request
 
@@ -40,6 +39,7 @@ from src.inference.media_bank import MediaSignBankEngine
 from src.inference.pipeline import TranslationPipeline
 from src.inference.wave import WaveGreetingEngine
 from src.hardware.serial_controller import SerialController
+from src.vision.mediapipe_detector import HandDetector as VisionHandDetector, draw_hand_landmarks
 
 app = Flask(__name__)
 
@@ -48,38 +48,25 @@ app = Flask(__name__)
 # DETECTOR MEDIAPIPE
 # ══════════════════════════════════════════════════════════════════════════════
 class HandDetector:
+    """Adaptador del servidor sobre src.vision.mediapipe_detector (MediaPipe Tasks, modo imagen)."""
     NUM_LANDMARKS = 21
     COORDS        = 3
     DIM           = NUM_LANDMARKS * COORDS   # 63 por mano, 126 total
 
     def __init__(self):
-        _mp = mp.solutions.hands
-        self._mp          = _mp
-        self._drawing     = mp.solutions.drawing_utils
-        self._draw_styles = mp.solutions.drawing_styles
-        self.hands = _mp.Hands(
+        self._detector = VisionHandDetector(
             static_image_mode=True,
             max_num_hands=2,
             min_detection_confidence=settings.MIN_DETECTION_CONFIDENCE,
             min_tracking_confidence=settings.MIN_TRACKING_CONFIDENCE,
         )
+        self.hands = self._detector  # expone close() como antes
 
     def process(self, bgr: np.ndarray):
-        rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
-        rgb.flags.writeable = False
-        res = self.hands.process(rgb)
-        rgb.flags.writeable = True
-        return res
+        return self._detector.process_frame(bgr)
 
     def draw(self, frame: np.ndarray, results) -> np.ndarray:
-        if results.multi_hand_landmarks:
-            for lm in results.multi_hand_landmarks:
-                self._drawing.draw_landmarks(
-                    frame, lm, self._mp.HAND_CONNECTIONS,
-                    self._draw_styles.get_default_hand_landmarks_style(),
-                    self._draw_styles.get_default_hand_connections_style(),
-                )
-        return frame
+        return draw_hand_landmarks(frame, results)
 
     def meta(self, results) -> list:
         info = []
@@ -94,18 +81,7 @@ class HandDetector:
         return info
 
     def keypoints(self, results) -> list:
-        left  = np.zeros(self.DIM, dtype=np.float32)
-        right = np.zeros(self.DIM, dtype=np.float32)
-        if results.multi_hand_landmarks and results.multi_handedness:
-            for lm, hd in zip(results.multi_hand_landmarks, results.multi_handedness):
-                pts = np.array(
-                    [[p.x, p.y, p.z] for p in lm.landmark], dtype=np.float32
-                ).flatten()
-                if hd.classification[0].label == "Left":
-                    left = pts
-                else:
-                    right = pts
-        return np.concatenate([left, right]).tolist()
+        return self._detector.extract_keypoints(results).tolist()
 
 
 # Instancia global + lock (serializa acceso entre múltiples clientes)

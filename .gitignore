@@ -18,6 +18,7 @@ models/trained/label_encoder.json
 models/trained/
 models/perusil/
 models/exp-*/
+models/mediapipe/
 
 # Archivos del sistema e IDEs
 .vscode/
