@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+COPY requirements-linux.lock /tmp/requirements-linux.lock
+RUN pip install --no-cache-dir --require-hashes -r /tmp/requirements-linux.lock
 
 ENV PYTHONUNBUFFERED=1 TF_CPP_MIN_LOG_LEVEL=2
 EXPOSE 5000
