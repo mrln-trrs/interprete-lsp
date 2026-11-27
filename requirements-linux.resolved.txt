@@ -1,6 +1,5 @@
 absl-py==2.5.0
 astunparse==1.6.3
-attrs==26.1.0
 blinker==1.9.0
 certifi==2026.10.19
 cffi==2.1.1
@@ -18,8 +17,6 @@ grpcio==1.84.0
 h5py==3.16.0
 idna==3.20
 itsdangerous==2.2.0
-jax==0.4.34
-jaxlib==0.4.34
 jinja2==3.1.6
 joblib==1.6.0
 keras==3.15.1
@@ -30,8 +27,8 @@ markdown-it-py==4.2.0
 markupsafe==3.0.4
 matplotlib==3.8.4
 mdurl==0.1.2
-mediapipe==0.10.14
-ml-dtypes==0.3.2
+mediapipe==0.10.35
+ml-dtypes==0.5.4
 namex==0.1.0
 numpy==1.26.4
 opencv-contrib-python==4.11.0.86
@@ -40,7 +37,7 @@ optree==0.20.0
 packaging==26.3
 pandas==3.0.6
 pillow==13.0.0
-protobuf==4.25.9
+protobuf==5.29.6
 pycparser==3.0
 pygments==2.21.0
 pyparsing==3.3.3
@@ -52,12 +49,12 @@ rich==15.0.0
 scikit-learn==1.5.2
 scipy==1.17.1
 seaborn==0.13.2
-setuptools==84.0.0
+setuptools==84.2.1
 six==1.17.0
 sounddevice==0.5.6
-tensorboard==2.16.2
+tensorboard==2.19.0
 tensorboard-data-server==0.7.2
-tensorflow==2.16.1
+tensorflow==2.19.1
 tensorflow-io-gcs-filesystem==0.37.1
 termcolor==3.3.0
 threadpoolctl==3.7.0
